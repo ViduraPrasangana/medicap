@@ -12,6 +12,9 @@ from torch.utils.data import Dataset
 from param import args
 from utils import load_obj_tsv
 
+from tasks.vocabulary import Vocabulary
+
+
 # Load part of the dataset for fast checking.
 # Notice that here is the number of images instead of the number of data,
 # which means all related data to the images would be used.
@@ -32,17 +35,19 @@ SPLIT2NAME = {
 
 class IUDataset:
     """
-    A VQA data example in json file:
-        {
-            "answer_type": "other",
-            "img_id": "COCO_train2014_000000458752",
-            "label": {
-                "net": 1
-            },
-            "question_id": 458752000,
-            "question_type": "what is this",
-            "sent": "What is this photo taken looking through?"
-        }
+    A IU xray data example in json file:
+    {
+        "uid": 1213,
+        "filename": "1213_IM-0144-2001.dcm.png",
+        "projection": "Lateral",
+        "MeSH": "Medical Device",
+        "Problems": "Medical Device",
+        "image": "CHEST, Two (2) Views XXXX, XXXX at XXXX hours.",
+        "indication": "Chest pain and weakness.",
+        "comparison": "None.",
+        "findings": "Frontal and lateral views of the chest with overlying external cardiac monitor leads show normal size and configuration of the cardiac silhouette. Normal pulmonary vasculature and central airways. No focal airspace consolidation or pleural effusion.",
+        "impression": "No acute or active cardiac, pulmonary or pleural disease."
+    }
     """
     def __init__(self, splits: str):
         self.name = splits
@@ -56,18 +61,12 @@ class IUDataset:
 
         # Convert list to dict (for evaluation)
         self.id2datum = {
-            datum['question_id']: datum
+            datum['uid']: datum
             for datum in self.data
         }
 
-        # Answers
-        self.ans2label = json.load(open("data/vqa/trainval_ans2label.json"))
-        self.label2ans = json.load(open("data/vqa/trainval_label2ans.json"))
-        assert len(self.ans2label) == len(self.label2ans)
-
-    @property
-    def num_answers(self):
-        return len(self.ans2label)
+        # Create vocab
+        self.vocab = Vocabulary(5,annotations=self.data, dataset_type="iu")
 
     def __len__(self):
         return len(self.data)

@@ -13,9 +13,9 @@ class Vocabulary(object):
         start_word="[CLS]",
         end_word="[SEP]",
         unk_word="[UNK]",
-        annotations_file='annotations/captions_train2017.json',
+        annotations=[],
         vocab_from_file=False,
-        dataset_type = "coco"):
+        dataset_type = "iu"):
         """Initialize the vocabulary.
         Args:
           vocab_threshold: Minimum word count threshold.
@@ -32,7 +32,7 @@ class Vocabulary(object):
         self.start_word = start_word
         self.end_word = end_word
         self.unk_word = unk_word
-        self.annotations_file = annotations_file
+        self.annotations = annotations
         self.vocab_from_file = vocab_from_file
         self.dataset_type = dataset_type
         self.get_vocab()
@@ -74,18 +74,17 @@ class Vocabulary(object):
     def read_captions(self):
         all_captions = {} # combine multi datasets to be implemented
         if(self.dataset_type == 'coco'):
-            coco = COCO(self.annotations_file)
-            ids = coco.anns.keys()
-            captions = {}
-            for i, id in enumerate(ids):
-                captions[id] = str(coco.anns[id]['caption'])
+            # coco = COCO(self.annotations_file)
+            # ids = coco.anns.keys()
+            # captions = {}
+            # for i, id in enumerate(ids):
+            #     captions[id] = str(coco.anns[id]['caption'])
             return captions
-        elif(self.dataset_type == 'vqa'):
-            with open('../input/chest-xrays-indiana-university/indiana_reports.csv', mode='r') as report:
-                reader = csv.reader(report)
-                first_line = next(reader)
-                index = first_line.index('findings')  # ['uid', 'MeSH', 'Problems', 'image', 'indication', 'comparison', 'findings', 'impression']
-                captions = {rows[0]:rows[index] for rows in reader}
+        elif(self.dataset_type == 'iu'):
+            captions = []
+            for item in self.annotations:
+                if(item["findings"] != None):
+                    captions.append(item["findings"])
             return captions
 
     def add_captions(self):
@@ -93,12 +92,13 @@ class Vocabulary(object):
         captions = self.read_captions()
         
         counter = Counter()
-        ids = captions.keys()
-        for i, caption in captions.items():
+        c = 0
+        for caption in captions:
+            c+=1
             tokens = nltk.tokenize.word_tokenize(caption.lower())
             counter.update(tokens)
-            if ( int(i) %1000 == 0):
-                print("[%d/%d] Tokenizing captions..." % (int(i), len(ids)))
+            if ( c %1000 == 0):
+                print("[%d/%d] Tokenizing captions..." % (c, len(captions)))
 
         words = [word for word, cnt in counter.items() if cnt >= self.vocab_threshold]
 
