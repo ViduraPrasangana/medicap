@@ -30,7 +30,7 @@ SPLIT2NAME = {
 }
 
 
-class VQADataset:
+class IUDataset:
     """
     A VQA data example in json file:
         {
@@ -51,7 +51,7 @@ class VQADataset:
         # Loading datasets
         self.data = []
         for split in self.splits:
-            self.data.extend(json.load(open("data/vqa/%s.json" % split)))
+            self.data.extend(json.load(open("data/iu/%sing_data.json" % split)))
         print("Load %d data from split(s) %s." % (len(self.data), self.name))
 
         # Convert list to dict (for evaluation)
