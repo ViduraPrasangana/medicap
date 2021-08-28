@@ -18,12 +18,12 @@ from tasks.vocabulary import Vocabulary
 # Load part of the dataset for fast checking.
 # Notice that here is the number of images instead of the number of data,
 # which means all related data to the images would be used.
-TINY_IMG_NUM = 512
-FAST_IMG_NUM = 5000
+TINY_IMG_NUM = 100
+FAST_IMG_NUM = 500
 
 # The path to data and image features.
 VQA_DATA_ROOT = 'data/vqa/'
-MSCOCO_IMGFEAT_ROOT = 'data/mscoco_imgfeat/'
+IU_IMGFEAT_ROOT = 'data/iu_imgfeat/'
 SPLIT2NAME = {
     'train': 'train2014',
     'valid': 'val2014',
@@ -61,7 +61,7 @@ class IUDataset:
 
         # Convert list to dict (for evaluation)
         self.id2datum = {
-            datum['uid']: datum
+            datum['item_id']: datum
             for datum in self.data
         }
 
@@ -78,8 +78,8 @@ FIELDNAMES = ["img_id", "img_h", "img_w", "objects_id", "objects_conf",
               "attrs_id", "attrs_conf", "num_boxes", "boxes", "features"]
 FIELDNAMES would be keys in the dict returned by load_obj_tsv.
 """
-class VQATorchDataset(Dataset):
-    def __init__(self, dataset: VQADataset):
+class IUTorchDataset(Dataset):
+    def __init__(self, dataset: IUDataset):
         super().__init__()
         self.raw_dataset = dataset
 
@@ -97,7 +97,7 @@ class VQATorchDataset(Dataset):
             # It is saved as the top 5K features in val2014_***.tsv
             load_topk = 5000 if (split == 'minival' and topk is None) else topk
             img_data.extend(load_obj_tsv(
-                os.path.join(MSCOCO_IMGFEAT_ROOT, '%s_obj36.tsv' % (SPLIT2NAME[split])),
+                os.path.join(IU_IMGFEAT_ROOT, '%s_obj36.tsv' % (SPLIT2NAME[split])),
                 topk=load_topk))
 
         # Convert img list to dict
@@ -108,7 +108,7 @@ class VQATorchDataset(Dataset):
         # Only kept the data with loaded image features
         self.data = []
         for datum in self.raw_dataset.data:
-            if datum['img_id'] in self.imgid2img:
+            if datum['item_id'] in self.imgid2img:
                 self.data.append(datum)
         print("Use %d data in torch dataset" % (len(self.data)))
         print()
