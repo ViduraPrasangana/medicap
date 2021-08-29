@@ -120,8 +120,8 @@ class IUTorchDataset(Dataset):
         datum = self.data[item]
 
         img_id = datum['img_id']
-        ques_id = datum['question_id']
-        ques = datum['sent']
+        item_id = datum['item_id']
+        text = datum['findings']
 
         # Get image info
         img_info = self.imgid2img[img_id]
@@ -149,7 +149,7 @@ class IUTorchDataset(Dataset):
             return ques_id, feats, boxes, ques
 
 
-class VQAEvaluator:
+class IUEvaluator:
     def __init__(self, dataset: VQADataset):
         self.dataset = dataset
 

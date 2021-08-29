@@ -11,14 +11,15 @@ from lxrt.modeling import BertLayerNorm, GeLU
 MAX_VQA_LENGTH = 20
 
 
-class VQAModel(nn.Module):
+class IUModel(nn.Module):
     def __init__(self, num_answers):
         super().__init__()
         
         # Build LXRT encoder
         self.lxrt_encoder = LXRTEncoder(
             args,
-            max_seq_length=MAX_VQA_LENGTH
+            max_seq_length=MAX_VQA_LENGTH,
+            mode="l",
         )
         hid_dim = self.lxrt_encoder.dim
         
@@ -42,8 +43,10 @@ class VQAModel(nn.Module):
         :return: (b, num_answer) The logit of each answers.
         """
         x = self.lxrt_encoder(sent, (feat, pos))
-        logit = self.logit_fc(x)
+        lang_feat = x[1] #new 
+        return lang_feat #new 
+        # logit = self.logit_fc(x)
 
-        return logit
+        # return logit
 
 

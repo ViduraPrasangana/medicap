@@ -11,16 +11,16 @@ from tqdm import tqdm
 
 from param import args
 from pretrain.qa_answer_table import load_lxmert_qa
-from tasks.vqa_model import VQAModel
-from tasks.vqa_data import VQADataset, VQATorchDataset, VQAEvaluator
+from tasks.captioning_model import IUModel
+from tasks.captioning_data import IUDataset, IUTorchDataset, IUEvaluator
 
 DataTuple = collections.namedtuple("DataTuple", 'dataset loader evaluator')
 
 
 def get_data_tuple(splits: str, bs:int, shuffle=False, drop_last=False) -> DataTuple:
-    dset = VQADataset(splits)
-    tset = VQATorchDataset(dset)
-    evaluator = VQAEvaluator(dset)
+    dset = IUDataset(splits)
+    tset = IUTorchDataset(dset)
+    evaluator = IUEvaluator(dset)
     data_loader = DataLoader(
         tset, batch_size=bs,
         shuffle=shuffle, num_workers=args.num_workers,
@@ -30,7 +30,7 @@ def get_data_tuple(splits: str, bs:int, shuffle=False, drop_last=False) -> DataT
     return DataTuple(dataset=dset, loader=data_loader, evaluator=evaluator)
 
 
-class VQA:
+class IU:
     def __init__(self):
         # Datasets
         self.train_tuple = get_data_tuple(
@@ -45,7 +45,7 @@ class VQA:
             self.valid_tuple = None
         
         # Model
-        self.model = VQAModel(self.train_tuple.dataset.num_answers)
+        self.model = IUModel(self.train_tuple.dataset.num_answers)
 
         # Load pre-trained weights
         if args.load_lxmert is not None:
@@ -60,7 +60,7 @@ class VQA:
             self.model.lxrt_encoder.multi_gpu()
 
         # Loss and Optimizer
-        self.bce_loss = nn.BCEWithLogitsLoss()
+        self.criterion = nn.CrossEntropyLoss()
         if 'bert' in args.optim:
             batch_per_epoch = len(self.train_tuple.loader)
             t_total = int(batch_per_epoch * args.epochs)
@@ -83,43 +83,43 @@ class VQA:
 
         best_valid = 0.
         for epoch in range(args.epochs):
-            quesid2ans = {}
+            # quesid2ans = {}
             for i, (ques_id, feats, boxes, sent, target) in iter_wrapper(enumerate(loader)):
 
                 self.model.train()
                 self.optim.zero_grad()
 
                 feats, boxes, target = feats.cuda(), boxes.cuda(), target.cuda()
-                logit = self.model(feats, boxes, sent)
-                assert logit.dim() == target.dim() == 2
-                loss = self.bce_loss(logit, target)
-                loss = loss * logit.size(1)
+                prediction = self.model(feats, boxes, sent)
+                # assert prediction.dim() == target.dim() == 2
+                loss = self.criterion(prediction, target)
+                # loss = loss * prediction.size(1)
 
                 loss.backward()
                 nn.utils.clip_grad_norm_(self.model.parameters(), 5.)
                 self.optim.step()
 
-                score, label = logit.max(1)
-                for qid, l in zip(ques_id, label.cpu().numpy()):
-                    ans = dset.label2ans[l]
-                    quesid2ans[qid.item()] = ans
+                # score, label = prediction.max(1)
+                # for qid, l in zip(ques_id, label.cpu().numpy()):
+                #     ans = dset.label2ans[l]
+                #     quesid2ans[qid.item()] = ans
 
-            log_str = "\nEpoch %d: Train %0.2f\n" % (epoch, evaluator.evaluate(quesid2ans) * 100.)
+            # log_str = "\nEpoch %d: Train %0.2f\n" % (epoch, evaluator.evaluate(quesid2ans) * 100.)
 
-            if self.valid_tuple is not None:  # Do Validation
-                valid_score = self.evaluate(eval_tuple)
-                if valid_score > best_valid:
-                    best_valid = valid_score
-                    self.save("BEST")
+            # if self.valid_tuple is not None:  # Do Validation
+            #     valid_score = self.evaluate(eval_tuple)
+            #     if valid_score > best_valid:
+            #         best_valid = valid_score
+            #         self.save("BEST")
 
-                log_str += "Epoch %d: Valid %0.2f\n" % (epoch, valid_score * 100.) + \
-                           "Epoch %d: Best %0.2f\n" % (epoch, best_valid * 100.)
+            #     log_str += "Epoch %d: Valid %0.2f\n" % (epoch, valid_score * 100.) + \
+            #                "Epoch %d: Best %0.2f\n" % (epoch, best_valid * 100.)
 
-            print(log_str, end='')
+            # print(log_str, end='')
 
-            with open(self.output + "/log.log", 'a') as f:
-                f.write(log_str)
-                f.flush()
+            # with open(self.output + "/log.log", 'a') as f:
+            #     f.write(log_str)
+            #     f.flush()
 
         self.save("LAST")
 
