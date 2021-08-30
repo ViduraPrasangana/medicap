@@ -102,6 +102,9 @@ class BertTokenizer(object):
                                                 never_split=never_split)
         self.wordpiece_tokenizer = WordpieceTokenizer(vocab=self.vocab)
         self.max_len = max_len if max_len is not None else int(1e12)
+    
+    def vocab_size(self):
+        return len(self.vocab)
 
     def tokenize(self, text):
         if self.do_basic_tokenize:

@@ -12,7 +12,7 @@ MAX_VQA_LENGTH = 20
 
 
 class IUModel(nn.Module):
-    def __init__(self, num_answers):
+    def __init__(self):
         super().__init__()
         
         # Build LXRT encoder
@@ -28,7 +28,7 @@ class IUModel(nn.Module):
             nn.Linear(hid_dim, hid_dim * 2),
             GeLU(),
             BertLayerNorm(hid_dim * 2, eps=1e-12),
-            nn.Linear(hid_dim * 2, num_answers)
+            nn.Linear(hid_dim * 2, self.lxrt_encoder.tokenizer.vocab_size())
         )
         self.logit_fc.apply(self.lxrt_encoder.model.init_bert_weights)
 
@@ -44,7 +44,7 @@ class IUModel(nn.Module):
         """
         x = self.lxrt_encoder(sent, (feat, pos))
         lang_feat = x[1] #new 
-        return lang_feat #new 
+        return self.logit_fc(lang_feat) #new 
         # logit = self.logit_fc(x)
 
         # return logit

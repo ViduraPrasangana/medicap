@@ -45,7 +45,7 @@ class IU:
             self.valid_tuple = None
         
         # Model
-        self.model = IUModel(self.train_tuple.dataset.num_answers)
+        self.model = IUModel()
 
         # Load pre-trained weights
         if args.load_lxmert is not None:
