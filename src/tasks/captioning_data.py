@@ -119,12 +119,12 @@ class IUTorchDataset(Dataset):
     def __getitem__(self, item: int):
         datum = self.data[item]
 
-        img_id = datum['img_id']
+        # img_id = datum['img_id']
         item_id = datum['item_id']
         text = datum['findings']
 
         # Get image info
-        img_info = self.imgid2img[img_id]
+        img_info = self.imgid2img[item_id]
         obj_num = img_info['num_boxes']
         feats = img_info['features'].copy()
         boxes = img_info['boxes'].copy()
@@ -144,9 +144,9 @@ class IUTorchDataset(Dataset):
             target = torch.zeros(self.raw_dataset.num_answers)
             for ans, score in label.items():
                 target[self.raw_dataset.ans2label[ans]] = score
-            return ques_id, feats, boxes, ques, target
+            return item_id, feats, boxes, text, target
         else:
-            return ques_id, feats, boxes, ques
+            return item_id, feats, boxes, text
 
 
 class IUEvaluator:

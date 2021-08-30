@@ -84,7 +84,7 @@ class IU:
         best_valid = 0.
         for epoch in range(args.epochs):
             # quesid2ans = {}
-            for i, (ques_id, feats, boxes, sent, target) in iter_wrapper(enumerate(loader)):
+            for i, (img_id, feats, boxes, sent, target) in iter_wrapper(enumerate(loader)):
 
                 self.model.train()
                 self.optim.zero_grad()
@@ -100,7 +100,7 @@ class IU:
                 self.optim.step()
 
                 # score, label = prediction.max(1)
-                # for qid, l in zip(ques_id, label.cpu().numpy()):
+                # for qid, l in zip(img_id, label.cpu().numpy()):
                 #     ans = dset.label2ans[l]
                 #     quesid2ans[qid.item()] = ans
 
@@ -135,12 +135,12 @@ class IU:
         dset, loader, evaluator = eval_tuple
         quesid2ans = {}
         for i, datum_tuple in enumerate(loader):
-            ques_id, feats, boxes, sent = datum_tuple[:4]   # Avoid seeing ground truth
+            img_id, feats, boxes, sent = datum_tuple[:4]   # Avoid seeing ground truth
             with torch.no_grad():
                 feats, boxes = feats.cuda(), boxes.cuda()
                 logit = self.model(feats, boxes, sent)
                 score, label = logit.max(1)
-                for qid, l in zip(ques_id, label.cpu().numpy()):
+                for qid, l in zip(img_id, label.cpu().numpy()):
                     ans = dset.label2ans[l]
                     quesid2ans[qid.item()] = ans
         if dump is not None:
@@ -156,9 +156,9 @@ class IU:
     def oracle_score(data_tuple):
         dset, loader, evaluator = data_tuple
         quesid2ans = {}
-        for i, (ques_id, feats, boxes, sent, target) in enumerate(loader):
+        for i, (img_id, feats, boxes, sent, target) in enumerate(loader):
             _, label = target.max(1)
-            for qid, l in zip(ques_id, label.cpu().numpy()):
+            for qid, l in zip(img_id, label.cpu().numpy()):
                 ans = dset.label2ans[l]
                 quesid2ans[qid.item()] = ans
         return evaluator.evaluate(quesid2ans)
