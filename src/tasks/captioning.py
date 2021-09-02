@@ -175,7 +175,7 @@ class IU:
 
 if __name__ == "__main__":
     # Build Class
-    vqa = VQA()
+    vqa = IU()
 
     # Load VQA model weights
     # Note: It is different from loading LXMERT pre-trained weights.

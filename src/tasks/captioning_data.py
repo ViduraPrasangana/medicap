@@ -12,7 +12,7 @@ from torch.utils.data import Dataset
 from param import args
 from utils import load_obj_tsv
 
-from tasks.vocabulary import Vocabulary
+#from tasks.vocabulary import Vocabulary
 
 
 # Load part of the dataset for fast checking.
@@ -30,6 +30,7 @@ SPLIT2NAME = {
     'minival': 'val2014',
     'nominival': 'val2014',
     'test': 'test2015',
+    'dummy':'dummy',
 }
 
 
@@ -66,7 +67,7 @@ class IUDataset:
         }
 
         # Create vocab
-        self.vocab = Vocabulary(5,annotations=self.data, dataset_type="iu")
+        #self.vocab = Vocabulary(5,annotations=self.data, dataset_type="iu")
 
     def __len__(self):
         return len(self.data)
@@ -150,7 +151,7 @@ class IUTorchDataset(Dataset):
 
 
 class IUEvaluator:
-    def __init__(self, dataset: VQADataset):
+    def __init__(self, dataset: IUDataset):
         self.dataset = dataset
 
     def evaluate(self, quesid2ans: dict):

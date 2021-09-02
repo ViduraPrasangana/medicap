@@ -4,6 +4,7 @@ import os.path
 import csv
 from pycocotools.coco import COCO
 from collections import Counter
+nltk.download('punkt')
 
 class Vocabulary(object):
 
