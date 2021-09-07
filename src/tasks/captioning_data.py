@@ -111,6 +111,7 @@ class IUTorchDataset(Dataset):
         for datum in self.raw_dataset.data:
             if datum['item_id'] in self.imgid2img:
                 self.data.append(datum)
+            
         print("Use %d data in torch dataset" % (len(self.data)))
         print()
 
@@ -138,7 +139,7 @@ class IUTorchDataset(Dataset):
         boxes[:, (1, 3)] /= img_h
         np.testing.assert_array_less(boxes, 1+1e-5)
         np.testing.assert_array_less(-boxes, 0+1e-5)
-
+        print(datum)
         # Provide label (target)
         if 'label' in datum:
             label = datum['label']
@@ -147,7 +148,7 @@ class IUTorchDataset(Dataset):
                 target[self.raw_dataset.ans2label[ans]] = score
             return item_id, feats, boxes, text, target
         else:
-            return item_id, feats, boxes, text
+            return item_id, feats, boxes, text, text
 
 
 class IUEvaluator:

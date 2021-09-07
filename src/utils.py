@@ -34,16 +34,15 @@ def load_obj_tsv(fname, topk=None):
             
             boxes = item['num_boxes']
             decode_config = [
-                ('objects_id', (boxes, ), np.int32),# changed 64 to 32 as
+                ('objects_id', (boxes, ), np.int64),# changed 64 to 32 as
                 ('objects_conf', (boxes, ), np.float32),
-                ('attrs_id', (boxes, ), np.int32), # changed 64 to 32 as
+                ('attrs_id', (boxes, ), np.int64), # changed 64 to 32 as
                 ('attrs_conf', (boxes, ), np.float32),
                 ('boxes', (boxes, 4), np.float32),
                 ('features', (boxes, -1), np.float32),
             ]
             for key, shape, dtype in decode_config:
-                item[key] = np.frombuffer(base64.b64decode(item[key]+ '=='), dtype=dtype)
-                print(item)
+                item[key] = np.frombuffer(base64.b64decode(item[key]), dtype=dtype)
                 item[key] = item[key].reshape(shape)
                 item[key].setflags(write=False)
 

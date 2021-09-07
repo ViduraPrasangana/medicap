@@ -89,7 +89,8 @@ class IU:
                 self.model.train()
                 self.optim.zero_grad()
 
-                feats, boxes, target = feats.cuda(), boxes.cuda(), target.cuda()
+                feats, boxes  = feats.cuda(), boxes.cuda()
+
                 prediction = self.model(feats, boxes, sent)
                 # assert prediction.dim() == target.dim() == 2
                 loss = self.criterion(prediction, target)
