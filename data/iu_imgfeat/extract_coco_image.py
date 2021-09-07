@@ -67,7 +67,7 @@ def generate_tsv(prototxt, weights, image_ids, outfile):
     else:
         print('missing {:d}/{:d}'.format(len(missing), len(image_ids)))
     if len(missing) > 0:
-        caffe.set_mode_gpu()
+        caffe.set_mode_cpu()
         caffe.set_device(0)
         net = caffe.Net(prototxt, caffe.TEST, weights=weights)
         with open(outfile, 'ab') as tsvfile:
