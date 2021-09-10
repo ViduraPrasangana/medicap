@@ -5,6 +5,7 @@ import sys
 import csv
 import base64
 import time
+import torch
 
 import numpy as np
 
@@ -53,3 +54,7 @@ def load_obj_tsv(fname, topk=None):
     print("Loaded %d images in file %s in %d seconds." % (len(data), fname, elapsed_time))
     return data
 
+def get_device() :
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    device = "cpu"
+    return device

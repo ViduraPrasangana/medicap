@@ -14,11 +14,13 @@ from torch.utils.data import DataLoader
 from param import args
 from pretrain.lxmert_data import InputExample, LXMERTDataset, LXMERTTorchDataset, LXMERTEvaluator
 from lxrt.entry import set_visual_config
+from utils import get_device
 from lxrt.tokenization import BertTokenizer
 from lxrt.modeling import LXRTPretraining
 
 DataTuple = collections.namedtuple("DataTuple", 'dataset torchdset loader evaluator')
 
+device = get_device()
 
 def get_tuple(splits: str, bs: int, shuffle=False, drop_last=False, topk=-1) -> DataTuple:
     # Decide which QA datasets would be used in pre-training.
@@ -244,7 +246,7 @@ class LXMERT:
             self.load_lxmert(args.load_lxmert)
 
         # GPU Options
-        self.model = self.model.cuda()
+        self.model = self.model.to(device)
         if args.multiGPU:
             self.model = nn.DataParallel(self.model)
 
@@ -253,28 +255,28 @@ class LXMERT:
                           for example in examples]
 
         # language Inputs
-        input_ids = torch.tensor([f.input_ids for f in train_features], dtype=torch.long).cuda()
-        input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long).cuda()
-        segment_ids = torch.tensor([f.segment_ids for f in train_features], dtype=torch.long).cuda()
+        input_ids = torch.tensor([f.input_ids for f in train_features], dtype=torch.long).to(device)
+        input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long).to(device)
+        segment_ids = torch.tensor([f.segment_ids for f in train_features], dtype=torch.long).to(device)
 
         # Visual Inputs
-        feats = torch.from_numpy(np.stack([f.visual_feats[0] for f in train_features])).cuda()
-        pos = torch.from_numpy(np.stack([f.visual_feats[1] for f in train_features])).cuda()
+        feats = torch.from_numpy(np.stack([f.visual_feats[0] for f in train_features])).to(device)
+        pos = torch.from_numpy(np.stack([f.visual_feats[1] for f in train_features])).to(device)
 
         # Language Prediction
-        lm_labels = torch.tensor([f.lm_label_ids for f in train_features], dtype=torch.long).cuda()
+        lm_labels = torch.tensor([f.lm_label_ids for f in train_features], dtype=torch.long).to(device)
 
         # Visual Prediction
         obj_labels = {}
         for key in ('obj', 'attr', 'feat'):
-            visn_labels = torch.from_numpy(np.stack([f.obj_labels[key][0] for f in train_features])).cuda()
-            visn_mask = torch.from_numpy(np.stack([f.obj_labels[key][1] for f in train_features])).cuda()
+            visn_labels = torch.from_numpy(np.stack([f.obj_labels[key][0] for f in train_features])).to(device)
+            visn_mask = torch.from_numpy(np.stack([f.obj_labels[key][1] for f in train_features])).to(device)
             assert visn_labels.size(0) == visn_mask.size(0) and visn_labels.size(1) == visn_mask.size(1)
             obj_labels[key] = (visn_labels, visn_mask)
 
         # Joint Prediction
-        matched_labels = torch.tensor([f.is_matched for f in train_features], dtype=torch.long).cuda()
-        ans = torch.from_numpy(np.stack([f.ans for f in train_features])).cuda()
+        matched_labels = torch.tensor([f.is_matched for f in train_features], dtype=torch.long).to(device)
+        ans = torch.from_numpy(np.stack([f.ans for f in train_features])).to(device)
 
         """
         forward(self, input_ids, token_type_ids=None, attention_mask=None, masked_lm_labels=None,

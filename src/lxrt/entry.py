@@ -22,7 +22,10 @@ import torch.nn as nn
 
 from lxrt.tokenization import BertTokenizer
 from lxrt.modeling import LXRTFeatureExtraction as VisualBertForLXRFeature, VISUAL_CONFIG
+from utils import get_device
 
+
+device = get_device()
 
 class InputFeatures(object):
     """A single set of features of data."""
@@ -85,7 +88,7 @@ class LXRTEncoder(nn.Module):
 
         # Using the bert tokenizer
         self.tokenizer = BertTokenizer.from_pretrained(
-            "bert-base-uncased",
+            "bert-iu-xray",
             do_lower_case=True
         )
 
@@ -110,9 +113,9 @@ class LXRTEncoder(nn.Module):
         train_features = convert_sents_to_features(
             sents, self.max_seq_length, self.tokenizer)
 
-        input_ids = torch.tensor([f.input_ids for f in train_features], dtype=torch.long).cuda()
-        input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long).cuda()
-        segment_ids = torch.tensor([f.segment_ids for f in train_features], dtype=torch.long).cuda()
+        input_ids = torch.tensor([f.input_ids for f in train_features], dtype=torch.long).to(device)
+        input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long).to(device)
+        segment_ids = torch.tensor([f.segment_ids for f in train_features], dtype=torch.long).to(device)
 
         output = self.model(input_ids, segment_ids, input_mask,
                             visual_feats=feats,

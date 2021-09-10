@@ -8,7 +8,7 @@ from lxrt.entry import LXRTEncoder
 from lxrt.modeling import BertLayerNorm, GeLU
 
 # Max length including <bos> and <eos>
-MAX_VQA_LENGTH = 20
+MAX_VQA_LENGTH = 50
 
 
 class IUModel(nn.Module):
@@ -43,7 +43,7 @@ class IUModel(nn.Module):
         :return: (b, num_answer) The logit of each answers.
         """
         x = self.lxrt_encoder(sent, (feat, pos))
-        lang_feat = x[1] #new 
+        lang_feat = x[0] #new 
         return self.logit_fc(lang_feat) #new 
         # logit = self.logit_fc(x)
 

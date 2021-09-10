@@ -59,7 +59,9 @@ class IUDataset:
         for split in self.splits:
             self.data.extend(json.load(open("data/iu/%s_data.json" % split)))
         print("Load %d data from split(s) %s." % (len(self.data), self.name))
-
+        for i in self.data:
+            if i["findings"] is None:
+                self.data.remove(i)
         # Convert list to dict (for evaluation)
         self.id2datum = {
             datum['item_id']: datum
@@ -139,15 +141,16 @@ class IUTorchDataset(Dataset):
         boxes[:, (1, 3)] /= img_h
         np.testing.assert_array_less(boxes, 1+1e-5)
         np.testing.assert_array_less(-boxes, 0+1e-5)
-        print(datum)
         # Provide label (target)
         if 'label' in datum:
             label = datum['label']
             target = torch.zeros(self.raw_dataset.num_answers)
             for ans, score in label.items():
                 target[self.raw_dataset.ans2label[ans]] = score
+            # print(item_id, feats, boxes, text, target)
             return item_id, feats, boxes, text, target
         else:
+            # print(item_id, feats, boxes, text)
             return item_id, feats, boxes, text, text
 
 

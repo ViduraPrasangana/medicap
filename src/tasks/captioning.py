@@ -13,9 +13,10 @@ from param import args
 from pretrain.qa_answer_table import load_lxmert_qa
 from tasks.captioning_model import IUModel
 from tasks.captioning_data import IUDataset, IUTorchDataset, IUEvaluator
+from utils import get_device
 
 DataTuple = collections.namedtuple("DataTuple", 'dataset loader evaluator')
-
+device = get_device()
 
 def get_data_tuple(splits: str, bs:int, shuffle=False, drop_last=False) -> DataTuple:
     dset = IUDataset(splits)
@@ -55,7 +56,8 @@ class IU:
                            label2ans=self.train_tuple.dataset.label2ans)
         
         # GPU options
-        self.model = self.model.cuda()
+        self.model = self.model.to(device)
+
         if args.multiGPU:
             self.model.lxrt_encoder.multi_gpu()
 
@@ -78,6 +80,8 @@ class IU:
         os.makedirs(self.output, exist_ok=True)
 
     def train(self, train_tuple, eval_tuple):
+        
+
         dset, loader, evaluator = train_tuple
         iter_wrapper = (lambda x: tqdm(x, total=len(loader))) if args.tqdm else (lambda x: x)
 
@@ -85,15 +89,24 @@ class IU:
         for epoch in range(args.epochs):
             # quesid2ans = {}
             for i, (img_id, feats, boxes, sent, target) in iter_wrapper(enumerate(loader)):
-
+                torch.cuda.empty_cache()
                 self.model.train()
                 self.optim.zero_grad()
 
-                feats, boxes  = feats.cuda(), boxes.cuda()
+                feats, boxes  = feats.to(device), boxes.to(device)
 
                 prediction = self.model(feats, boxes, sent)
                 # assert prediction.dim() == target.dim() == 2
-                loss = self.criterion(prediction, target)
+                targets = []
+                for (i, tar) in enumerate(target):
+                    tokens = self.model.lxrt_encoder.tokenizer.tokenize(tar.strip())
+                    ids = self.model.lxrt_encoder.tokenizer.convert_tokens_to_ids(tokens)
+                    padding = [0] * (self.model.lxrt_encoder.max_seq_length - len(ids))
+                    ids += padding
+                    targets.append(ids)
+                
+                targets = torch.tensor([t for t in targets], dtype=torch.long).to(device)
+                loss = self.criterion(prediction.view(-1, self.model.lxrt_encoder.tokenizer.vocab_size()), targets.view(-1))
                 # loss = loss * prediction.size(1)
 
                 loss.backward()
@@ -138,7 +151,7 @@ class IU:
         for i, datum_tuple in enumerate(loader):
             img_id, feats, boxes, sent = datum_tuple[:4]   # Avoid seeing ground truth
             with torch.no_grad():
-                feats, boxes = feats.cuda(), boxes.cuda()
+                feats, boxes = feats.to(device), boxes.to(device)
                 logit = self.model(feats, boxes, sent)
                 score, label = logit.max(1)
                 for qid, l in zip(img_id, label.cpu().numpy()):
