@@ -8,7 +8,7 @@
         "image": " PA and lateral chest.",
         "indication": "tuberculosis positive PPD",
         "comparison": null,
-        "findings": "The cardiac silhouette mediastinal contours are within normal limits. There is no definite focal infiltrate. There is no large pleural effusion. There is no pneumothorax.",
+        "findings": null,
         "impression": "Heart size is normal. Lungs are clear. No evidence of tuberculosis",
         "item_id": "image-1"
     },
@@ -21,7 +21,7 @@
         "image": "Chest radiograph examination 2 views performed XXXX, XXXX at XXXX. ",
         "indication": "XXXX-year-old male with dyspnea.",
         "comparison": "Comparison is XXXX to chest radiograph examination dated XXXX.",
-        "findings": "The cardiac silhouette mediastinal contours are within normal limits. There is no definite focal infiltrate. There is no large pleural effusion. There is no pneumothorax.",
+        "findings": "XXXX sternotomy XXXX remain in XXXX. The cardiomediastinal silhouette is within normal limits for appearance. No focal areas of pulmonary consolidation. No pneumothorax. No pleural effusion. Minimal degenerative changes of the thoracic spine.",
         "impression": "1. No acute intrathoracic abnormality.",
         "item_id": "image-2"
     },
@@ -34,7 +34,7 @@
         "image": "Xray Chest PA and Lateral",
         "indication": "XXXX-year-old female, XXXX, chest pain",
         "comparison": "None",
-        "findings": "The cardiac silhouette mediastinal contours are within normal limits. There is no definite focal infiltrate. There is no large pleural effusion. There is no pneumothorax.",
+        "findings": "Heart size within normal limits. No focal alveolar consolidation, no definite pleural effusion seen. No typical findings of pulmonary edema. No pneumothorax.",
         "impression": "No acute cardiopulmonary findings",
         "item_id": "image-3"
     },
@@ -47,7 +47,7 @@
         "image": "PA and lateral views of the chest ",
         "indication": "Evaluate for pneumonia.",
         "comparison": "Chest x-XXXX dated XXXX.",
-        "findings": "The cardiac silhouette mediastinal contours are within normal limits. There is no definite focal infiltrate. There is no large pleural effusion. There is no pneumothorax.",
+        "findings": "Mediastinal contours are normal. Heart size is within normal limits. Multiple scattered calcified pulmonary nodules, XXXX sequela of prior granulomatous disease. Otherwise lungs are clear.. There is no pneumothorax or large pleural effusion. No bony abnormality.",
         "impression": "No acute cardiopulmonary abnormality.",
         "item_id": "image-4"
     },
@@ -60,7 +60,7 @@
         "image": "Chest, 2 views, frontal and lateral",
         "indication": "XXXX",
         "comparison": "XXXX, XXXX",
-        "findings": "The cardiac silhouette mediastinal contours are within normal limits. There is no definite focal infiltrate. There is no large pleural effusion. There is no pneumothorax.",
+        "findings": "The cardiac contours are normal. Prior granulomatous disease. The lungs are clear. Thoracic spondylosis.",
         "impression": "No acute process.",
         "item_id": "image-5"
     },
@@ -73,7 +73,7 @@
         "image": "PA and lateral views of the chest ",
         "indication": "XXXX.",
         "comparison": "None.",
-        "findings": "The cardiac silhouette mediastinal contours are within normal limits. There is no definite focal infiltrate. There is no large pleural effusion. There is no pneumothorax.",
+        "findings": "Mediastinal contours are within normal limits. Heart size is within normal limits. No focal consolidation, pneumothorax or pleural effusion. Cervical fusion XXXX. Degenerative changes of the spine and the acromioclavicular joints.",
         "impression": "No acute cardiopulmonary abnormality.",
         "item_id": "image-6"
     },
@@ -86,7 +86,7 @@
         "image": "Xray Chest PA and Lateral",
         "indication": "XXXX-year-old male, XXXX",
         "comparison": null,
-        "findings": "The cardiac silhouette mediastinal contours are within normal limits. There is no definite focal infiltrate. There is no large pleural effusion. There is no pneumothorax.",
+        "findings": "Heart size within normal limits, stable mediastinal and hilar contours. No focal alveolar consolidation, no definite pleural effusion seen. No typical findings of pulmonary edema.",
         "impression": "No acute findings",
         "item_id": "image-7"
     },
@@ -112,7 +112,7 @@
         "image": " PA and lateral chest ",
         "indication": "hypertension cigarette smoking history of XXXX disease.",
         "comparison": null,
-        "findings": "The cardiac silhouette mediastinal contours are within normal limits. There is no definite focal infiltrate. There is no large pleural effusion. There is no pneumothorax.",
+        "findings": null,
         "impression": "Heart size is upper limits normal and lungs are clear. No pneumonia, edema, or effusions.",
         "item_id": "image-9"
     },
@@ -125,7 +125,7 @@
         "image": " Two-view chest. XXXX hours XXXX, XXXX. ",
         "indication": "Preoperative for knee arthroscopy.",
         "comparison": "XXXX, XXXX.",
-        "findings": "The cardiac silhouette mediastinal contours are within normal limits. There is no definite focal infiltrate. There is no large pleural effusion. There is no pneumothorax.",
+        "findings": "The heart and lungs have XXXX XXXX in the interval. Both lungs are clear and expanded. Heart and mediastinum normal.",
         "impression": "No active disease.",
         "item_id": "image-10"
     },
@@ -138,7 +138,7 @@
         "image": "Chest, 2 views, frontal and lateral",
         "indication": "Preop chest x-XXXX.",
         "comparison": "None.",
-        "findings": "The cardiac silhouette mediastinal contours are within normal limits. There is no definite focal infiltrate. There is no large pleural effusion. There is no pneumothorax.",
+        "findings": "Cardiac and mediastinal contours are within normal limits. The lungs are clear. Acromioclavicular arthritis is present, XXXX severe.",
         "impression": "No acute preoperative findings.",
         "item_id": "image-11"
     },
@@ -151,7 +151,7 @@
         "image": "Radiographs of the chest, 2 views, dated XXXX, XXXX, at XXXX hours. ",
         "indication": "XXXX-year-old female. Shortness of breath.",
         "comparison": "None.",
-        "findings": "The cardiac silhouette mediastinal contours are within normal limits. There is no definite focal infiltrate. There is no large pleural effusion. There is no pneumothorax.",
+        "findings": "The cardiomediastinal silhouette is normal in size and contour. No focal consolidation, pneumothorax or large pleural effusion. Negative for acute bone abnormality.",
         "impression": "Negative for acute abnormality.",
         "item_id": "image-12"
     },
@@ -164,7 +164,7 @@
         "image": "PA and lateral chest ",
         "indication": "XXXX.",
         "comparison": "None",
-        "findings": "The cardiac silhouette mediastinal contours are within normal limits. There is no definite focal infiltrate. There is no large pleural effusion. There is no pneumothorax.",
+        "findings": "No focal consolidation. No visualized pneumothorax. No large pleural effusions. The heart size and cardiomediastinal silhouette are grossly unremarkable.",
         "impression": "1. No acute cardiopulmonary findings.",
         "item_id": "image-13"
     },
@@ -177,7 +177,7 @@
         "image": "Xray Chest PA and Lateral",
         "indication": "Preop bariatric surgery",
         "comparison": "XXXX, XXXX",
-        "findings": "The cardiac silhouette mediastinal contours are within normal limits. There is no definite focal infiltrate. There is no large pleural effusion. There is no pneumothorax.",
+        "findings": "The cardiac contours are normal. Cardiac valve replacement. The lungs are clear. Thoracic spondylosis.",
         "impression": "No acute process.",
         "item_id": "image-14"
     },
@@ -190,7 +190,7 @@
         "image": "Radiographs of the chest, 2 views, dated XXXX, XXXX, at XXXX hours.",
         "indication": "XXXX-year-old female. XXXX. Shortness of breath for 5 days.",
         "comparison": "XXXX, XXXX.",
-        "findings": "The cardiac silhouette mediastinal contours are within normal limits. There is no definite focal infiltrate. There is no large pleural effusion. There is no pneumothorax.",
+        "findings": "The cardiomediastinal silhouette is normal in size and contour. Negative for focal consolidation, pneumothorax or large pleural effusion. Middle lobe calcified granulomas. Normal XXXX.",
         "impression": "Negative for acute abnormality.",
         "item_id": "image-15"
     }

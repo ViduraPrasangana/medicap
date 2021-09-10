@@ -58,7 +58,7 @@ def convert_sents_to_features(sents, max_seq_length, tokenizer):
         input_mask = [1] * len(input_ids)
 
         # Zero-pad up to the sequence length.
-        padding = [0] * (max_seq_length - len(input_ids))
+        padding = [1] * (max_seq_length - len(input_ids))
         input_ids += padding
         input_mask += padding
         segment_ids += padding

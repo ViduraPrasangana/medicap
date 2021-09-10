@@ -87,9 +87,8 @@ class IU:
 
         best_valid = 0.
         for epoch in range(args.epochs):
-            # quesid2ans = {}
+            predictions = {}
             for i, (img_id, feats, boxes, sent, target) in iter_wrapper(enumerate(loader)):
-                torch.cuda.empty_cache()
                 self.model.train()
                 self.optim.zero_grad()
 
@@ -113,12 +112,12 @@ class IU:
                 nn.utils.clip_grad_norm_(self.model.parameters(), 5.)
                 self.optim.step()
 
-                # score, label = prediction.max(1)
-                # for qid, l in zip(img_id, label.cpu().numpy()):
-                #     ans = dset.label2ans[l]
-                #     quesid2ans[qid.item()] = ans
+                word_score, word_id = prediction.max(2)
+                print(prediction,word_id)
+                for i_id, w_id in zip(img_id, word_id.cpu().numpy()):
+                    predictions[i_id] = w_id
 
-            # log_str = "\nEpoch %d: Train %0.2f\n" % (epoch, evaluator.evaluate(quesid2ans) * 100.)
+            log_str = "\nEpoch %d: Train %0.2f\n" % (epoch, evaluator.evaluate(predictions) * 100.)
 
             # if self.valid_tuple is not None:  # Do Validation
             #     valid_score = self.evaluate(eval_tuple)
@@ -129,11 +128,11 @@ class IU:
             #     log_str += "Epoch %d: Valid %0.2f\n" % (epoch, valid_score * 100.) + \
             #                "Epoch %d: Best %0.2f\n" % (epoch, best_valid * 100.)
 
-            # print(log_str, end='')
+            print(log_str, end='')
 
-            # with open(self.output + "/log.log", 'a') as f:
-            #     f.write(log_str)
-            #     f.flush()
+            with open(self.output + "/log.log", 'a') as f:
+                f.write(log_str)
+                f.flush()
 
         self.save("LAST")
 

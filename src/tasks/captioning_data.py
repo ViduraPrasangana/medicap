@@ -11,6 +11,7 @@ from torch.utils.data import Dataset
 
 from param import args
 from utils import load_obj_tsv
+from lxrt.tokenization import BertTokenizer
 
 #from tasks.vocabulary import Vocabulary
 
@@ -53,15 +54,26 @@ class IUDataset:
     def __init__(self, splits: str):
         self.name = splits
         self.splits = splits.split(',')
-
+        self.tokenizer = BertTokenizer.from_pretrained(
+                    "bert-iu-xray",
+                    do_lower_case=True
+                )
         # Loading datasets
         self.data = []
         for split in self.splits:
             self.data.extend(json.load(open("data/iu/%s_data.json" % split)))
         print("Load %d data from split(s) %s." % (len(self.data), self.name))
-        for i in self.data:
-            if i["findings"] is None:
-                self.data.remove(i)
+
+        unwanted = []
+        for i in range(len(self.data)):
+            if self.data[i]["findings"] is None:
+                unwanted.append(i)
+            else:
+                self.data[i]["findings_tokens"] = self.tokenizer.tokenize(self.data[i]["findings"].strip())
+                self.data[i]["findings_tokens_ids"] = self.tokenizer.convert_tokens_to_ids(self.data[i]["findings_tokens"])
+        for j in sorted(unwanted, reverse = True):
+            del self.data[j]
+
         # Convert list to dict (for evaluation)
         self.id2datum = {
             datum['item_id']: datum
@@ -73,6 +85,8 @@ class IUDataset:
 
     def __len__(self):
         return len(self.data)
+    
+
 
 
 """
@@ -158,14 +172,19 @@ class IUEvaluator:
     def __init__(self, dataset: IUDataset):
         self.dataset = dataset
 
-    def evaluate(self, quesid2ans: dict):
-        score = 0.
-        for quesid, ans in quesid2ans.items():
-            datum = self.dataset.id2datum[quesid]
-            label = datum['label']
-            if ans in label:
-                score += label[ans]
-        return score / len(quesid2ans)
+    def evaluate(self, predictions: dict):
+        image_score = 0
+        word_count = 0
+        for i_id, pred in predictions.items():
+            original_cap_ids = self.dataset.id2datum[i_id]["findings_tokens_ids"]
+            pred_as_list = pred.tolist()
+            # print(original_cap_ids,pred)
+            word_count += len(original_cap_ids)
+            for i in original_cap_ids:
+                if(i in pred_as_list):
+                    image_score +=1
+        
+        return image_score / word_count
 
     def dump_result(self, quesid2ans: dict, path):
         """
