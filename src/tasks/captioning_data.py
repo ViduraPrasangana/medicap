@@ -32,6 +32,7 @@ SPLIT2NAME = {
     'nominival': 'val2014',
     'test': 'test2015',
     'dummy':'dummy',
+    "testdummy":"testdummy",
 }
 
 

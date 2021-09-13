@@ -146,19 +146,19 @@ class IU:
         """
         self.model.eval()
         dset, loader, evaluator = eval_tuple
-        quesid2ans = {}
+        predictions = {}
         for i, datum_tuple in enumerate(loader):
             img_id, feats, boxes, sent = datum_tuple[:4]   # Avoid seeing ground truth
             with torch.no_grad():
                 feats, boxes = feats.to(device), boxes.to(device)
                 logit = self.model(feats, boxes, sent)
-                score, label = logit.max(1)
-                for qid, l in zip(img_id, label.cpu().numpy()):
-                    ans = dset.label2ans[l]
-                    quesid2ans[qid.item()] = ans
+                score, word_id = logit.max(1)
+                print(word_id)
+                for i_id, w_id in zip(img_id, word_id.cpu().numpy()):
+                    predictions[i_id] = w_id
         if dump is not None:
-            evaluator.dump_result(quesid2ans, dump)
-        return quesid2ans
+            evaluator.dump_result(predictions, dump)
+        return predictions
 
     def evaluate(self, eval_tuple: DataTuple, dump=None):
         """Evaluate all data in data_tuple."""
@@ -199,8 +199,9 @@ if __name__ == "__main__":
     if args.test is not None:
         args.fast = args.tiny = False       # Always loading all data in test
         if 'test' in args.test:
+            print("testing")
             vqa.predict(
-                get_data_tuple(args.test, bs=950,
+                get_data_tuple(args.test, bs=3,
                                shuffle=False, drop_last=False),
                 dump=os.path.join(args.output, 'test_predict.json')
             )
