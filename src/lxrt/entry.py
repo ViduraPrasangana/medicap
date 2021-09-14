@@ -40,9 +40,10 @@ def convert_sents_to_features(sents, max_seq_length, tokenizer):
     """Loads a data file into a list of `InputBatch`s."""
 
     features = []
+
     for (i, sent) in enumerate(sents):
         tokens_a = tokenizer.tokenize(sent.strip())
-
+        
         # Account for [CLS] and [SEP] with "- 2"
         if len(tokens_a) > max_seq_length - 2:
             tokens_a = tokens_a[:(max_seq_length - 2)]
@@ -50,7 +51,7 @@ def convert_sents_to_features(sents, max_seq_length, tokenizer):
         # Keep segment id which allows loading BERT-weights.
         tokens = ["[CLS]"] + tokens_a + ["[SEP]"]
         segment_ids = [0] * len(tokens)
-
+        
         input_ids = tokenizer.convert_tokens_to_ids(tokens)
 
         # The mask has 1 for real tokens and 0 for padding tokens. Only real

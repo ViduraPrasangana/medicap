@@ -176,6 +176,7 @@ class IUEvaluator:
     def evaluate(self, predictions: dict):
         image_score = 0
         word_count = 0
+        print(predictions)
         for i_id, pred in predictions.items():
             original_cap_ids = self.dataset.id2datum[i_id]["findings_tokens_ids"]
             pred_as_list = pred.tolist()
@@ -185,9 +186,9 @@ class IUEvaluator:
                 if(i in pred_as_list):
                     image_score +=1
         
-        return image_score / word_count
+        return 0 if(word_count == 0) else image_score / word_count
 
-    def dump_result(self, quesid2ans: dict, path):
+    def dump_result(self, predictions: dict, path):
         """
         Dump results to a json file, which could be submitted to the VQA online evaluation.
         VQA json file submission requirement:
@@ -197,15 +198,15 @@ class IUEvaluator:
                 "answer": str
             }
 
-        :param quesid2ans: dict of quesid --> ans
+        :param predictions: dict of image_id --> prediction
         :param path: The desired path of saved file.
         """
         with open(path, 'w') as f:
             result = []
-            for ques_id, ans in quesid2ans.items():
+            for image_id, prediction in predictions.items():
                 result.append({
-                    'question_id': ques_id,
-                    'answer': ans
+                    'image_id': image_id,
+                    'prediction': prediction
                 })
             json.dump(result, f, indent=4, sort_keys=True)
 

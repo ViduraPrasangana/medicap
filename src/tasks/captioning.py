@@ -148,14 +148,16 @@ class IU:
         dset, loader, evaluator = eval_tuple
         predictions = {}
         for i, datum_tuple in enumerate(loader):
-            img_id, feats, boxes, sent = datum_tuple[:4]   # Avoid seeing ground truth
+            img_id, feats, boxes, sent = datum_tuple[:4]
+            caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length-20)))]*len(img_id)
             with torch.no_grad():
                 feats, boxes = feats.to(device), boxes.to(device)
-                logit = self.model(feats, boxes, sent)
-                score, word_id = logit.max(1)
+                logit = self.model(feats, boxes, caption)
+                score, word_id = logit.max(2)
                 print(word_id)
                 for i_id, w_id in zip(img_id, word_id.cpu().numpy()):
-                    predictions[i_id] = w_id
+                    predictions[i_id] = " ".join(self.model.lxrt_encoder.tokenizer.convert_ids_to_tokens(w_id))
+
         if dump is not None:
             evaluator.dump_result(predictions, dump)
         return predictions
