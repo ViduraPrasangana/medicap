@@ -172,7 +172,7 @@ class VQA:
 
     def load(self, path):
         print("Load model from %s" % path)
-        state_dict = torch.load("%s.pth" % path)
+        state_dict = torch.load("%s.pth" % path,map_location=device)
         self.model.load_state_dict(state_dict)
 
 
