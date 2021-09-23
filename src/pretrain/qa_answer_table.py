@@ -3,7 +3,8 @@
 
 import json
 import torch
-
+from utils import get_device
+device = get_device()
 
 class AnswerTable:
     ANS_CONVERT = {
@@ -95,7 +96,7 @@ def load_lxmert_qa(path, model, label2ans):
     :return:
     """
     print("Load QA pre-trained LXMERT from %s " % path)
-    loaded_state_dict = torch.load("%s_LXRT.pth" % path)
+    loaded_state_dict = torch.load("%s_LXRT.pth" % path,map_location=device)
     model_state_dict = model.state_dict()
 
     # Handle Multi-GPU pre-training --> Single GPU fine-tuning

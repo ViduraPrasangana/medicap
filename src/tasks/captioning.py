@@ -14,9 +14,10 @@ from pretrain.qa_answer_table import load_lxmert_qa
 from tasks.captioning_model import IUModel
 from tasks.captioning_data import IUDataset, IUTorchDataset, IUEvaluator
 from utils import get_device
+device = get_device()
 
 DataTuple = collections.namedtuple("DataTuple", 'dataset loader evaluator')
-device = get_device()
+
 
 def get_data_tuple(splits: str, bs:int, shuffle=False, drop_last=False) -> DataTuple:
     dset = IUDataset(splits)

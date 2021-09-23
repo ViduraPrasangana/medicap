@@ -13,6 +13,9 @@ from param import args
 from pretrain.qa_answer_table import load_lxmert_qa
 from tasks.vqa_model import VQAModel
 from tasks.vqa_data import VQADataset, VQATorchDataset, VQAEvaluator
+from utils import get_device
+device = get_device()
+
 
 DataTuple = collections.namedtuple("DataTuple", 'dataset loader evaluator')
 
@@ -55,7 +58,7 @@ class VQA:
                            label2ans=self.train_tuple.dataset.label2ans)
         
         # GPU options
-        self.model = self.model.cuda()
+        self.model = self.model.to(device)
         if args.multiGPU:
             self.model.lxrt_encoder.multi_gpu()
 
@@ -89,7 +92,7 @@ class VQA:
                 self.model.train()
                 self.optim.zero_grad()
 
-                feats, boxes, target = feats.cuda(), boxes.cuda(), target.cuda()
+                feats, boxes, target = feats.to(device), boxes.to(device), target.to(device)
                 logit = self.model(feats, boxes, sent)
                 assert logit.dim() == target.dim() == 2
                 loss = self.bce_loss(logit, target)
@@ -137,7 +140,7 @@ class VQA:
         for i, datum_tuple in enumerate(loader):
             ques_id, feats, boxes, sent = datum_tuple[:4]   # Avoid seeing ground truth
             with torch.no_grad():
-                feats, boxes = feats.cuda(), boxes.cuda()
+                feats, boxes = feats.to(device), boxes.to(device)
                 logit = self.model(feats, boxes, sent)
                 score, label = logit.max(1)
                 for qid, l in zip(ques_id, label.cpu().numpy()):
