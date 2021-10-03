@@ -57,8 +57,9 @@ class IU:
                            label2ans=self.train_tuple.dataset.label2ans)
         
         # GPU options
+        print("tring to use %s" % device)
         self.model = self.model.to(device)
-
+        print("train using %s" % next(self.model.parameters()).device)
         if args.multiGPU:
             self.model.lxrt_encoder.multi_gpu()
 
