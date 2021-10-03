@@ -97,10 +97,10 @@ FIELDNAMES = ["img_id", "img_h", "img_w", "objects_id", "objects_conf",
 FIELDNAMES would be keys in the dict returned by load_obj_tsv.
 """
 class IUTorchDataset(Dataset):
-    def __init__(self, dataset: IUDataset):
+    def __init__(self, dataset: IUDataset,args):
         super().__init__()
         self.raw_dataset = dataset
-
+        IU_IMGFEAT_ROOT = args.iu_imgfeat_root
         if args.tiny:
             topk = TINY_IMG_NUM
         elif args.fast:
