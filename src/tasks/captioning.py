@@ -19,9 +19,9 @@ device = get_device()
 DataTuple = collections.namedtuple("DataTuple", 'dataset loader evaluator')
 
 
-def get_data_tuple(splits: str, bs:int, shuffle=False, drop_last=False) -> DataTuple:
+def get_data_tuple(splits: str, bs:int,args, shuffle=False, drop_last=False) -> DataTuple:
     dset = IUDataset(splits)
-    tset = IUTorchDataset(dset)
+    tset = IUTorchDataset(dset,args)
     evaluator = IUEvaluator(dset)
     data_loader = DataLoader(
         tset, batch_size=bs,
@@ -36,11 +36,11 @@ class IU:
     def __init__(self):
         # Datasets
         self.train_tuple = get_data_tuple(
-            args.train, bs=args.batch_size, shuffle=True, drop_last=True
+            args.train, bs=args.batch_size, args = args, shuffle=True, drop_last=True
         )
         if args.valid != "":
             self.valid_tuple = get_data_tuple(
-                args.valid, bs=1024,
+                args.valid, bs=1024, args = args,
                 shuffle=False, drop_last=False
             )
         else:
