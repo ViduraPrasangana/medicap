@@ -56,5 +56,5 @@ def load_obj_tsv(fname, topk=None):
 
 def get_device() :
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    device = "cpu"
+    # device = "cpu"
     return device
