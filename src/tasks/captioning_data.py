@@ -26,7 +26,7 @@ FAST_IMG_NUM = 500
 VQA_DATA_ROOT = 'data/vqa/'
 IU_IMGFEAT_ROOT = 'data/iu_imgfeat/'
 SPLIT2NAME = {
-    'train': 'train2014',
+    'train': 'train',
     'valid': 'val2014',
     'minival': 'val2014',
     'nominival': 'val2014',
@@ -126,7 +126,9 @@ class IUTorchDataset(Dataset):
         # Only kept the data with loaded image features
         self.data = []
         for datum in self.raw_dataset.data:
-            if datum['item_id'] in self.imgid2img:
+            img_id = datum['filename'].split(".")[0]
+            if img_id in self.imgid2img:
+                datum["img_id"] = img_id
                 self.data.append(datum)
             
         print("Use %d data in torch dataset" % (len(self.data)))
@@ -135,11 +137,11 @@ class IUTorchDataset(Dataset):
     def __len__(self):
         return len(self.data)
 
+
     def __getitem__(self, item: int):
         datum = self.data[item]
 
-        # img_id = datum['img_id']
-        item_id = datum['item_id']
+        item_id = datum['img_id']
         text = datum['findings']
 
         # Get image info

@@ -103,7 +103,7 @@ class IU:
                     ids = self.model.lxrt_encoder.tokenizer.convert_tokens_to_ids(tokens)
                     padding = [0] * (self.model.lxrt_encoder.max_seq_length - len(ids))
                     ids += padding
-                    targets.append(ids)
+                    targets.append(ids[:self.model.lxrt_encoder.max_seq_length])
                 
                 targets = torch.tensor([t for t in targets], dtype=torch.long).to(device)
                 loss = self.criterion(prediction.view(-1, self.model.lxrt_encoder.tokenizer.vocab_size()), targets.view(-1))
@@ -114,7 +114,7 @@ class IU:
                 self.optim.step()
 
                 word_score, word_id = prediction.max(2)
-                print(prediction,word_id)
+                # print(prediction,word_id)
                 for i_id, w_id in zip(img_id, word_id.cpu().numpy()):
                     predictions[i_id] = w_id
 
