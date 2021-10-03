@@ -72,12 +72,13 @@ class IUDataset:
             else:
                 self.data[i]["findings_tokens"] = self.tokenizer.tokenize(self.data[i]["findings"].strip())
                 self.data[i]["findings_tokens_ids"] = self.tokenizer.convert_tokens_to_ids(self.data[i]["findings_tokens"])
+        print("%s datums have null findings" % len(unwanted))
         for j in sorted(unwanted, reverse = True):
             del self.data[j]
-
+        
         # Convert list to dict (for evaluation)
         self.id2datum = {
-            datum['item_id']: datum
+            datum['filename'].split(".")[0]: datum
             for datum in self.data
         }
 
@@ -178,7 +179,6 @@ class IUEvaluator:
     def evaluate(self, predictions: dict):
         image_score = 0
         word_count = 0
-        print(predictions)
         for i_id, pred in predictions.items():
             original_cap_ids = self.dataset.id2datum[i_id]["findings_tokens_ids"]
             pred_as_list = pred.tolist()
