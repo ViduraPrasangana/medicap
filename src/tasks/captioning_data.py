@@ -27,10 +27,10 @@ VQA_DATA_ROOT = 'data/vqa/'
 IU_IMGFEAT_ROOT = 'data/iu_imgfeat/'
 SPLIT2NAME = {
     'train': 'train',
-    'valid': 'val2014',
-    'minival': 'val2014',
-    'nominival': 'val2014',
-    'test': 'test2015',
+    # 'valid': 'val2014',
+    # 'minival': 'val2014',
+    # 'nominival': 'val2014',
+    'test': 'train',
     'dummy':'dummy',
     "testdummy":"testdummy",
 }

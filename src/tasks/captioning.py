@@ -81,7 +81,7 @@ class IU:
         self.output = args.output
         os.makedirs(self.output, exist_ok=True)
 
-    def train(self, train_tuple, eval_tuple):
+    def train(self, train_tuple, eval_tuple,dump = None):
         
 
         dset, loader, evaluator = train_tuple
@@ -90,6 +90,7 @@ class IU:
         best_valid = 0.
         for epoch in range(args.epochs):
             predictions = {}
+            dump_out = {}
             for i, (img_id, feats, boxes, sent, target) in iter_wrapper(enumerate(loader)):
                 self.model.train()
                 self.optim.zero_grad()
@@ -118,9 +119,13 @@ class IU:
                 # print(prediction,word_id)
                 for i_id, w_id in zip(img_id, word_id.cpu().numpy()):
                     predictions[i_id] = w_id
+                    dump_out[i_id] = " ".join(self.model.lxrt_encoder.tokenizer.convert_ids_to_tokens(w_id))
 
+            
+            if dump is not None:
+                evaluator.dump_result(predictions, dump)
             log_str = "\nEpoch %d: Train %0.2f\n" % (epoch, evaluator.evaluate(predictions) * 100.)
-
+            
             # if self.valid_tuple is not None:  # Do Validation
             #     valid_score = self.evaluate(eval_tuple)
             #     if valid_score > best_valid:
@@ -148,15 +153,15 @@ class IU:
         """
         self.model.eval()
         dset, loader, evaluator = eval_tuple
+        iter_wrapper = (lambda x: tqdm(x, total=len(loader))) if args.tqdm else (lambda x: x)
         predictions = {}
-        for i, datum_tuple in enumerate(loader):
+        for i, datum_tuple in iter_wrapper(enumerate(loader)):
             img_id, feats, boxes, sent = datum_tuple[:4]
             caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length-20)))]*len(img_id)
             with torch.no_grad():
                 feats, boxes = feats.to(device), boxes.to(device)
                 logit = self.model(feats, boxes, caption)
                 score, word_id = logit.max(2)
-                print(word_id)
                 for i_id, w_id in zip(img_id, word_id.cpu().numpy()):
                     predictions[i_id] = " ".join(self.model.lxrt_encoder.tokenizer.convert_ids_to_tokens(w_id))
 
@@ -205,7 +210,7 @@ if __name__ == "__main__":
         if 'test' in args.test:
             print("testing")
             vqa.predict(
-                get_data_tuple(args.test, bs=3,
+                get_data_tuple(args.test, bs=3, args=args,
                                shuffle=False, drop_last=False),
                 dump=os.path.join(args.output, 'test_predict.json')
             )
@@ -227,6 +232,6 @@ if __name__ == "__main__":
             print("Valid Oracle: %0.2f" % (vqa.oracle_score(vqa.valid_tuple) * 100))
         else:
             print("DO NOT USE VALIDATION")
-        vqa.train(vqa.train_tuple, vqa.valid_tuple)
+        vqa.train(vqa.train_tuple, vqa.valid_tuple,dump=os.path.join(args.output, 'train_predict.json')
 
 
