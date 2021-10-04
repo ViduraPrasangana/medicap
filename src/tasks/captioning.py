@@ -123,6 +123,7 @@ class IU:
 
             
             if dump is not None:
+                dump = dump=os.path.join(args.output, 'train_predict_epo_'+str(epoch)+'.json')
                 evaluator.dump_result(dump_out, dump)
             log_str = "\nEpoch %d: Train %0.2f\n" % (epoch, evaluator.evaluate(predictions) * 100.)
             
