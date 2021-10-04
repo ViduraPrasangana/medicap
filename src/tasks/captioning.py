@@ -210,7 +210,7 @@ if __name__ == "__main__":
         if 'test' in args.test:
             print("testing")
             vqa.predict(
-                get_data_tuple(args.test, bs=3, args=args,
+                get_data_tuple(args.test, bs=args.batch_size, args=args,
                                shuffle=False, drop_last=False),
                 dump=os.path.join(args.output, 'test_predict.json')
             )
@@ -218,7 +218,7 @@ if __name__ == "__main__":
             # Since part of valididation data are used in pre-training/fine-tuning,
             # only validate on the minival set.
             result = vqa.evaluate(
-                get_data_tuple('minival', bs=950,
+                get_data_tuple('minival', bs=args.batch_size,
                                shuffle=False, drop_last=False),
                 dump=os.path.join(args.output, 'minival_predict.json')
             )
