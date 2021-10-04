@@ -232,6 +232,6 @@ if __name__ == "__main__":
             print("Valid Oracle: %0.2f" % (vqa.oracle_score(vqa.valid_tuple) * 100))
         else:
             print("DO NOT USE VALIDATION")
-        vqa.train(vqa.train_tuple, vqa.valid_tuple,dump=os.path.join(args.output, 'train_predict.json')
+        vqa.train(vqa.train_tuple, vqa.valid_tuple,dump=os.path.join(args.output, 'train_predict.json'))
 
 
