@@ -123,7 +123,7 @@ class IU:
 
             
             if dump is not None:
-                evaluator.dump_result(predictions, dump)
+                evaluator.dump_result(dump_out, dump)
             log_str = "\nEpoch %d: Train %0.2f\n" % (epoch, evaluator.evaluate(predictions) * 100.)
             
             # if self.valid_tuple is not None:  # Do Validation
