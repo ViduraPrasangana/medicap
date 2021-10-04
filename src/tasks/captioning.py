@@ -155,6 +155,7 @@ class IU:
         dset, loader, evaluator = eval_tuple
         iter_wrapper = (lambda x: tqdm(x, total=len(loader))) if args.tqdm else (lambda x: x)
         predictions = {}
+        dump_out ={}
         for i, datum_tuple in iter_wrapper(enumerate(loader)):
             img_id, feats, boxes, sent = datum_tuple[:4]
             caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length-20)))]*len(img_id)
@@ -163,10 +164,18 @@ class IU:
                 logit = self.model(feats, boxes, caption)
                 score, word_id = logit.max(2)
                 for i_id, w_id in zip(img_id, word_id.cpu().numpy()):
-                    predictions[i_id] = " ".join(self.model.lxrt_encoder.tokenizer.convert_ids_to_tokens(w_id))
+                    predictions[i_id] = w_id
+                    dump_out[i_id] = " ".join(self.model.lxrt_encoder.tokenizer.convert_ids_to_tokens(w_id))
 
         if dump is not None:
-            evaluator.dump_result(predictions, dump)
+            evaluator.dump_result(dump_out, dump)
+        
+        log_str = "\nTesting %0.2f\n" % (evaluator.evaluate(predictions) * 100.)
+        print(log_str, end='')
+        with open(self.output + "/log.log", 'a') as f:
+            f.write(log_str)
+            f.flush()
+
         return predictions
 
     def evaluate(self, eval_tuple: DataTuple, dump=None):
@@ -208,7 +217,6 @@ if __name__ == "__main__":
     if args.test is not None:
         args.fast = args.tiny = False       # Always loading all data in test
         if 'test' in args.test:
-            print("testing")
             vqa.predict(
                 get_data_tuple(args.test, bs=args.batch_size, args=args,
                                shuffle=False, drop_last=False),
