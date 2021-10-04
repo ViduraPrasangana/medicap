@@ -94,10 +94,11 @@ class IU:
             for i, (img_id, feats, boxes, sent, target) in iter_wrapper(enumerate(loader)):
                 self.model.train()
                 self.optim.zero_grad()
+                caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length)))]*len(img_id)
 
                 feats, boxes  = feats.to(device), boxes.to(device)
 
-                prediction = self.model(feats, boxes, sent)
+                prediction = self.model(feats, boxes, caption)
                 # assert prediction.dim() == target.dim() == 2
                 targets = []
                 for (i, tar) in enumerate(target):
@@ -159,7 +160,7 @@ class IU:
         dump_out ={}
         for i, datum_tuple in iter_wrapper(enumerate(loader)):
             img_id, feats, boxes, sent = datum_tuple[:4]
-            caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length-20)))]*len(img_id)
+            caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length)))]*len(img_id)
             with torch.no_grad():
                 feats, boxes = feats.to(device), boxes.to(device)
                 logit = self.model(feats, boxes, caption)
