@@ -8,6 +8,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 from param import args
 from pretrain.qa_answer_table import load_lxmert_qa
@@ -147,7 +148,7 @@ class IU:
             with open(self.output + "/log.log", 'a') as f:
                 f.write(log_str)
                 f.flush()
-                
+
         self.plot_diag(train_losses)
         self.save("LAST")
 

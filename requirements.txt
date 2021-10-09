@@ -12,3 +12,4 @@ requests
 numpy
 nltk
 pycocotools
+matplotlib
