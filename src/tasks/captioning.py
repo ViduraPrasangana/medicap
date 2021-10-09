@@ -88,9 +88,12 @@ class IU:
         iter_wrapper = (lambda x: tqdm(x, total=len(loader))) if args.tqdm else (lambda x: x)
 
         best_valid = 0.
+        train_losses = []
         for epoch in range(args.epochs):
             predictions = {}
             dump_out = {}
+            train_loss=0
+            valid_loss=0
             for i, (img_id, feats, boxes, sent, target) in iter_wrapper(enumerate(loader)):
                 self.model.train()
                 self.optim.zero_grad()
@@ -113,6 +116,7 @@ class IU:
                 # loss = loss * prediction.size(1)
 
                 loss.backward()
+                train_loss += loss.item()
                 nn.utils.clip_grad_norm_(self.model.parameters(), 5.)
                 self.optim.step()
 
@@ -122,11 +126,12 @@ class IU:
                     predictions[i_id] = w_id
                     dump_out[i_id] = " ".join(self.model.lxrt_encoder.tokenizer.convert_ids_to_tokens(w_id))
 
-            
+            total_train_loss = train_loss/len(loader)
+            train_losses.append(total_train_loss)
             if dump is not None:
                 dump = dump=os.path.join(args.output, 'train_predict_epo_'+str(epoch)+'.json')
                 evaluator.dump_result(dump_out, dump)
-            log_str = "\nEpoch %d: Train %0.2f\n" % (epoch, evaluator.evaluate(predictions) * 100.)
+            log_str = "\nEpoch %d: Train %0.2f: Train Loss %0.2f\n" % (epoch, evaluator.evaluate(predictions) * 100.,total_train_loss)
             
             # if self.valid_tuple is not None:  # Do Validation
             #     valid_score = self.evaluate(eval_tuple)
@@ -142,9 +147,21 @@ class IU:
             with open(self.output + "/log.log", 'a') as f:
                 f.write(log_str)
                 f.flush()
-
+                
+        self.plot_diag(train_losses)
         self.save("LAST")
 
+    def plot_diag(train_losses):
+        plt.plot(train_losses,'-o')
+        # plt.plot(eval_losses,'-o')
+        plt.xlabel('epoch')
+        plt.ylabel('losses')
+        plt.legend(['Train'])
+        plt.title('Train vs Valid Losses')
+        
+        
+        plt.show()
+    
     def predict(self, eval_tuple: DataTuple, dump=None):
         """
         Predict the answers to questions in a data split.
