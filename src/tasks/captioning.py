@@ -184,14 +184,14 @@ class IU:
         self.plot_diag(train_losses,valid_losses)
         self.save("LAST")
 
-    def plot_diag(self,train_losses, valid_losses):
+    def plot_diag(self,train_losses, valid_losses,output):
         plt.plot(train_losses,'-o')
         plt.plot(valid_losses,'-o')
         plt.xlabel('epoch')
         plt.ylabel('losses')
         plt.legend(['Train','Valid'])
         plt.title('Train vs Valid Losses')
-        plt.savefig('foo.pdf')
+        plt.savefig(self.output+'/loss.png')
         plt.show()
     
     def predict(self, eval_tuple: DataTuple, dump=None):
