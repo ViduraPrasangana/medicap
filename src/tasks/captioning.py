@@ -99,7 +99,7 @@ class IU:
             train_loss=0
             valid_loss=0
             for i, (img_id, feats, boxes, sent, target) in iter_wrapper(enumerate(loader)):
-                torch.cuda.empty_cache()
+                torch.cuda.set_per_process_memory_fraction(0.7)
                 self.model.train()
                 self.optim.zero_grad()
                 caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length)))]*len(img_id)
@@ -132,7 +132,6 @@ class IU:
                     dump_out[i_id] = " ".join(self.model.lxrt_encoder.tokenizer.convert_ids_to_tokens(w_id))
 
             if self.valid_tuple is not None:
-                torch.cuda.empty_cache()
                 for i, (img_id, feats, boxes, sent, target) in eval_iter_wrapper(enumerate(eval_loader)):
                     self.model.eval()
                     caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length)))]*len(img_id)
