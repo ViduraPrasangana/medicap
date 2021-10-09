@@ -9,6 +9,7 @@ import torch.nn as nn
 from torch.utils.data.dataloader import DataLoader
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+%matplotlib inline
 
 from param import args
 from pretrain.qa_answer_table import load_lxmert_qa
@@ -191,8 +192,6 @@ class IU:
         plt.ylabel('losses')
         plt.legend(['Train','Valid'])
         plt.title('Train vs Valid Losses')
-        
-        
         plt.show()
     
     def predict(self, eval_tuple: DataTuple, dump=None):
