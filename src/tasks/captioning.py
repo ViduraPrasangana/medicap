@@ -86,10 +86,13 @@ class IU:
         
 
         dset, loader, evaluator = train_tuple
+        eval_dset, eval_loader, eval_evaluator = eval_tuple
         iter_wrapper = (lambda x: tqdm(x, total=len(loader))) if args.tqdm else (lambda x: x)
+        eval_iter_wrapper = (lambda x: tqdm(x, total=len(eval_loader))) if args.tqdm else (lambda x: x)
 
         best_valid = 0.
         train_losses = []
+        valid_losses = []
         for epoch in range(args.epochs):
             predictions = {}
             dump_out = {}
@@ -114,7 +117,7 @@ class IU:
                 
                 targets = torch.tensor([t for t in targets], dtype=torch.long).to(device)
                 loss = self.criterion(prediction.view(-1, self.model.lxrt_encoder.tokenizer.vocab_size()), targets.view(-1))
-                # loss = loss * prediction.size(1)
+                loss = loss * prediction.size(1)
 
                 loss.backward()
                 train_loss += loss.item()
@@ -127,12 +130,39 @@ class IU:
                     predictions[i_id] = w_id
                     dump_out[i_id] = " ".join(self.model.lxrt_encoder.tokenizer.convert_ids_to_tokens(w_id))
 
+            if self.valid_tuple is not None:
+                for i, (img_id, feats, boxes, sent, target) in eval_iter_wrapper(enumerate(eval_loader)):
+                    self.model.eval()
+                    caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length)))]*len(img_id)
+
+                    feats, boxes  = feats.to(device), boxes.to(device)
+
+                    prediction = self.model(feats, boxes, caption)
+                    # assert prediction.dim() == target.dim() == 2
+                    targets = []
+                    for (i, tar) in enumerate(target):
+                        tokens = self.model.lxrt_encoder.tokenizer.tokenize(tar.strip())
+                        ids = self.model.lxrt_encoder.tokenizer.convert_tokens_to_ids(tokens)
+                        padding = [0] * (self.model.lxrt_encoder.max_seq_length - len(ids))
+                        ids += padding
+                        targets.append(ids[:self.model.lxrt_encoder.max_seq_length])
+                    
+                    targets = torch.tensor([t for t in targets], dtype=torch.long).to(device)
+                    loss = self.criterion(prediction.view(-1, self.model.lxrt_encoder.tokenizer.vocab_size()), targets.view(-1))
+                    loss = loss * prediction.size(1)
+
+                    valid_loss += loss.item()
+
+
             total_train_loss = train_loss/len(loader)
+            total_valid_loss = valid_loss/len(eval_loader)
             train_losses.append(total_train_loss)
+            valid_losses.append(total_valid_loss)
+
             if dump is not None:
                 dump = dump=os.path.join(args.output, 'train_predict_epo_'+str(epoch)+'.json')
                 evaluator.dump_result(dump_out, dump)
-            log_str = "\nEpoch %d: Train %0.2f: Train Loss %0.2f\n" % (epoch, evaluator.evaluate(predictions) * 100.,total_train_loss)
+            log_str = "\nEpoch %d: Train accuracy %0.2f: Train Loss %0.2f: Validation Loss %0.2f\n" % (epoch, evaluator.evaluate(predictions) * 100.,total_train_loss,total_valid_loss)
             
             # if self.valid_tuple is not None:  # Do Validation
             #     valid_score = self.evaluate(eval_tuple)
@@ -144,20 +174,20 @@ class IU:
             #                "Epoch %d: Best %0.2f\n" % (epoch, best_valid * 100.)
 
             print(log_str, end='')
-
+           
             with open(self.output + "/log.log", 'a') as f:
                 f.write(log_str)
                 f.flush()
 
-        self.plot_diag(train_losses)
+        self.plot_diag(train_losses,valid_losses)
         self.save("LAST")
 
-    def plot_diag(train_losses):
+    def plot_diag(self,train_losses, valid_losses):
         plt.plot(train_losses,'-o')
-        # plt.plot(eval_losses,'-o')
+        plt.plot(valid_losses,'-o')
         plt.xlabel('epoch')
         plt.ylabel('losses')
-        plt.legend(['Train'])
+        plt.legend(['Train','Valid'])
         plt.title('Train vs Valid Losses')
         
         
@@ -257,7 +287,7 @@ if __name__ == "__main__":
         print('Splits in Train data:', vqa.train_tuple.dataset.splits)
         if vqa.valid_tuple is not None:
             print('Splits in Valid data:', vqa.valid_tuple.dataset.splits)
-            print("Valid Oracle: %0.2f" % (vqa.oracle_score(vqa.valid_tuple) * 100))
+            # print("Valid Oracle: %0.2f" % (vqa.oracle_score(vqa.valid_tuple) * 100))
         else:
             print("DO NOT USE VALIDATION")
         vqa.train(vqa.train_tuple, vqa.valid_tuple,dump=os.path.join(args.output, 'train_predict.json'))
