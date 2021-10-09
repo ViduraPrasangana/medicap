@@ -99,7 +99,7 @@ class IU:
             train_loss=0
             valid_loss=0
             for i, (img_id, feats, boxes, sent, target) in iter_wrapper(enumerate(loader)):
-                torch.cuda.set_per_process_memory_fraction(0.7)
+                # torch.cuda.set_per_process_memory_fraction(0.7)
                 self.model.train()
                 self.optim.zero_grad()
                 caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length)))]*len(img_id)
@@ -133,26 +133,27 @@ class IU:
 
             if self.valid_tuple is not None:
                 for i, (img_id, feats, boxes, sent, target) in eval_iter_wrapper(enumerate(eval_loader)):
-                    self.model.eval()
-                    caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length)))]*len(img_id)
+                    with torch.no_grad():
+                        self.model.eval()
+                        caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length)))]*len(img_id)
 
-                    feats, boxes  = feats.to(device), boxes.to(device)
+                        feats, boxes  = feats.to(device), boxes.to(device)
 
-                    prediction = self.model(feats, boxes, caption)
-                    # assert prediction.dim() == target.dim() == 2
-                    targets = []
-                    for (i, tar) in enumerate(target):
-                        tokens = self.model.lxrt_encoder.tokenizer.tokenize(tar.strip())
-                        ids = self.model.lxrt_encoder.tokenizer.convert_tokens_to_ids(tokens)
-                        padding = [0] * (self.model.lxrt_encoder.max_seq_length - len(ids))
-                        ids += padding
-                        targets.append(ids[:self.model.lxrt_encoder.max_seq_length])
-                    
-                    targets = torch.tensor([t for t in targets], dtype=torch.long).to(device)
-                    loss = self.criterion(prediction.view(-1, self.model.lxrt_encoder.tokenizer.vocab_size()), targets.view(-1))
-                    loss = loss * prediction.size(1)
+                        prediction = self.model(feats, boxes, caption)
+                        # assert prediction.dim() == target.dim() == 2
+                        targets = []
+                        for (i, tar) in enumerate(target):
+                            tokens = self.model.lxrt_encoder.tokenizer.tokenize(tar.strip())
+                            ids = self.model.lxrt_encoder.tokenizer.convert_tokens_to_ids(tokens)
+                            padding = [0] * (self.model.lxrt_encoder.max_seq_length - len(ids))
+                            ids += padding
+                            targets.append(ids[:self.model.lxrt_encoder.max_seq_length])
+                        
+                        targets = torch.tensor([t for t in targets], dtype=torch.long).to(device)
+                        loss = self.criterion(prediction.view(-1, self.model.lxrt_encoder.tokenizer.vocab_size()), targets.view(-1))
+                        loss = loss * prediction.size(1)
 
-                    valid_loss += loss.item()
+                        valid_loss += loss.item()
 
 
             total_train_loss = train_loss/len(loader)
