@@ -8,7 +8,7 @@ from lxrt.entry import LXRTEncoder
 from lxrt.modeling import BertLayerNorm, GeLU
 
 # Max length including <bos> and <eos>
-MAX_VQA_LENGTH = 50
+MAX_VQA_LENGTH = 36
 
 
 class IUModel(nn.Module):
