@@ -43,8 +43,8 @@ class IUModel(nn.Module):
         :return: (b, num_answer) The logit of each answers.
         """
         x = self.lxrt_encoder(sent, (feat, pos))
-        lang_feat = x[0] #new 
-        return self.logit_fc(lang_feat) #new 
+        img_feat = x[1] #new 
+        return self.logit_fc(img_feat) #new 
         # logit = self.logit_fc(x)
 
         # return logit
