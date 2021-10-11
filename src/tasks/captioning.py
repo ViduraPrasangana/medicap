@@ -3,6 +3,7 @@
 
 import os
 import collections
+from numpy import Infinity
 
 import torch
 import torch.nn as nn
@@ -93,6 +94,7 @@ class IU:
         best_valid = 0.
         train_losses = []
         valid_losses = []
+        best_valid_loss = Infinity
         for epoch in range(args.epochs):
             predictions = {}
             dump_out = {}
@@ -161,6 +163,10 @@ class IU:
             total_valid_loss = valid_loss/len(eval_loader)
             train_losses.append(total_train_loss)
             valid_losses.append(total_valid_loss)
+
+            if (best_valid_loss>total_valid_loss) :
+                best_valid_loss = total_valid_loss
+                self.save("BEST")
 
             if dump is not None:
                 dump = dump=os.path.join(args.output, 'train_predict_epo_'+str(epoch)+'.json')
