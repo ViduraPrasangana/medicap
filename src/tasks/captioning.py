@@ -107,6 +107,7 @@ class IU:
                 feats, boxes  = feats.to(device), boxes.to(device)
 
                 prediction = self.model(feats, boxes, caption)
+
                 # assert prediction.dim() == target.dim() == 2
                 targets = []
                 for (i, tar) in enumerate(target):
@@ -118,7 +119,7 @@ class IU:
                 
                 targets = torch.tensor([t for t in targets], dtype=torch.long).to(device)
                 loss = self.criterion(prediction.view(-1, self.model.lxrt_encoder.tokenizer.vocab_size()), targets.view(-1))
-                loss = loss * prediction.size(1)
+                loss = loss * prediction.size(2)
 
                 loss.backward()
                 train_loss += loss.item()
