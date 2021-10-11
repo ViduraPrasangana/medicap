@@ -41,7 +41,7 @@ class IU:
         )
         if args.valid != "":
             self.valid_tuple = get_data_tuple(
-                args.valid, bs=1024, args = args,
+                args.valid, bs=args.batch_size, args = args,
                 shuffle=False, drop_last=False
             )
         else:
@@ -119,7 +119,7 @@ class IU:
                 
                 targets = torch.tensor([t for t in targets], dtype=torch.long).to(device)
                 loss = self.criterion(prediction.view(-1, self.model.lxrt_encoder.tokenizer.vocab_size()), targets.view(-1))
-                loss = loss * prediction.size(2)
+                # loss = loss * prediction.size(2)
 
                 loss.backward()
                 train_loss += loss.item()
@@ -152,7 +152,7 @@ class IU:
                         
                         targets = torch.tensor([t for t in targets], dtype=torch.long).to(device)
                         loss = self.criterion(prediction.view(-1, self.model.lxrt_encoder.tokenizer.vocab_size()), targets.view(-1))
-                        loss = loss * prediction.size(2)
+                        # loss = loss * prediction.size(2)
 
                         valid_loss += loss.item()
 
