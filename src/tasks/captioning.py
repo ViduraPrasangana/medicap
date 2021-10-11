@@ -152,7 +152,7 @@ class IU:
                         
                         targets = torch.tensor([t for t in targets], dtype=torch.long).to(device)
                         loss = self.criterion(prediction.view(-1, self.model.lxrt_encoder.tokenizer.vocab_size()), targets.view(-1))
-                        loss = loss * prediction.size(1)
+                        loss = loss * prediction.size(2)
 
                         valid_loss += loss.item()
 
@@ -182,7 +182,7 @@ class IU:
                 f.write(log_str)
                 f.flush()
 
-        self.plot_diag(train_losses,valid_losses)
+        self.plot_diag(train_losses,valid_losses,self.output)
         self.save("LAST")
 
     def plot_diag(self,train_losses, valid_losses,output):
