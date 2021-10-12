@@ -120,7 +120,7 @@ class IU:
                     targets.append(ids[:self.model.lxrt_encoder.max_seq_length])
                 
                 targets = torch.tensor([t for t in targets], dtype=torch.long).to(device)
-                print(prediction.size(),targets.size())
+                # print(prediction.size(),targets.size())
                 loss = self.criterion(prediction.view(-1, self.model.lxrt_encoder.tokenizer.vocab_size()), targets.view(-1))
                 # loss = loss * prediction.size(2)
 
