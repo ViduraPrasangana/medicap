@@ -100,15 +100,15 @@ class IU:
             dump_out = {}
             train_loss=0
             valid_loss=0
-            for i, (img_id, feats, boxes, sent, target) in iter_wrapper(enumerate(loader)):
+            for i, (img_id, feats, sent, target) in iter_wrapper(enumerate(loader)):
                 # torch.cuda.set_per_process_memory_fraction(0.7)
                 self.model.train()
                 self.optim.zero_grad()
                 caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length)))]*len(img_id)
 
-                feats, boxes  = feats.to(device), boxes.to(device)
+                feats  = feats.to(device)
 
-                prediction = self.model(feats, boxes, caption)
+                prediction = self.model(feats, caption)
 
                 # assert prediction.dim() == target.dim() == 2
                 targets = []
@@ -135,7 +135,7 @@ class IU:
                     dump_out[i_id] = " ".join(self.model.lxrt_encoder.tokenizer.convert_ids_to_tokens(w_id))
 
             if self.valid_tuple is not None:
-                for i, (img_id, feats, boxes, sent, target) in eval_iter_wrapper(enumerate(eval_loader)):
+                for i, (img_id, feats,  sent, target) in eval_iter_wrapper(enumerate(eval_loader)):
                     with torch.no_grad():
                         self.model.eval()
                         caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length)))]*len(img_id)

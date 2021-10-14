@@ -148,7 +148,7 @@ class VisualConfig(object):
         self.x_layers = x_layers
         self.r_layers = r_layers
 
-        self.visual_feat_dim = 2048
+        self.visual_feat_dim = 512
         self.visual_pos_dim = 4
 
         self.obj_id_num = 1600
@@ -505,15 +505,15 @@ class VisualFeatEncoder(nn.Module):
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
 
     def forward(self, visn_input):
-        feats, boxes = visn_input
+        feats = visn_input
 
         x = self.visn_fc(feats)
         x = self.visn_layer_norm(x)
-        y = self.box_fc(boxes)
-        y = self.box_layer_norm(y)
-        output = (x + y) / 2
+        # y = self.box_fc(boxes)
+        # y = self.box_layer_norm(y)
+        # output = (x + y) / 2
 
-        output = self.dropout(output)
+        output = self.dropout(x)
         return output
 
 

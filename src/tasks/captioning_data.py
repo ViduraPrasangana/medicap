@@ -10,7 +10,7 @@ import torch
 from torch.utils.data import Dataset
 
 from param import args
-from utils import load_obj_tsv
+from utils import load_feat_csv, load_obj_tsv
 from lxrt.tokenization import BertTokenizer
 
 #from tasks.vocabulary import Vocabulary
@@ -115,8 +115,8 @@ class IUTorchDataset(Dataset):
             # Minival is 5K images in MS COCO, which is used in evaluating VQA/LXMERT-pre-training.
             # It is saved as the top 5K features in val2014_***.tsv
             load_topk = 5000 if (split == 'minival' and topk is None) else topk
-            img_data.extend(load_obj_tsv(
-                os.path.join(IU_IMGFEAT_ROOT, '%s_obj36.tsv' % (SPLIT2NAME[split])),
+            img_data.extend(load_feat_csv(
+                os.path.join(IU_IMGFEAT_ROOT, '%s_feat.csv' % (SPLIT2NAME[split])),
                 topk=load_topk))
 
         # Convert img list to dict
@@ -127,7 +127,7 @@ class IUTorchDataset(Dataset):
         # Only kept the data with loaded image features
         self.data = []
         for datum in self.raw_dataset.data:
-            img_id = datum['filename'].split(".")[0]
+            img_id = datum['filename']
             if img_id in self.imgid2img:
                 datum["img_id"] = img_id
                 self.data.append(datum)
@@ -147,18 +147,12 @@ class IUTorchDataset(Dataset):
 
         # Get image info
         img_info = self.imgid2img[item_id]
-        obj_num = img_info['num_boxes']
+        # obj_num = img_info['num_boxes']
         feats = img_info['features'].copy()
-        boxes = img_info['boxes'].copy()
-        assert obj_num == len(boxes) == len(feats)
+        # boxes = img_info['boxes'].copy()
+        # assert obj_num == len(boxes) == len(feats)
 
         # Normalize the boxes (to 0 ~ 1)
-        img_h, img_w = img_info['img_h'], img_info['img_w']
-        boxes = boxes.copy()
-        boxes[:, (0, 2)] /= img_w
-        boxes[:, (1, 3)] /= img_h
-        np.testing.assert_array_less(boxes, 1+1e-5)
-        np.testing.assert_array_less(-boxes, 0+1e-5)
         # Provide label (target)
         if 'label' in datum:
             label = datum['label']
@@ -166,10 +160,10 @@ class IUTorchDataset(Dataset):
             for ans, score in label.items():
                 target[self.raw_dataset.ans2label[ans]] = score
             # print(item_id, feats, boxes, text, target)
-            return item_id, feats, boxes, text, target
+            return item_id, feats, text, target
         else:
             # print(item_id, feats, boxes, text)
-            return item_id, feats, boxes, text, text
+            return item_id, feats, text, text
 
 
 class IUEvaluator:

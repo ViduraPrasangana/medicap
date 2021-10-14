@@ -32,7 +32,7 @@ class IUModel(nn.Module):
         )
         self.logit_fc.apply(self.lxrt_encoder.model.init_bert_weights)
 
-    def forward(self, feat, pos, sent):
+    def forward(self, feat, sent):
         """
         b -- batch_size, o -- object_number, f -- visual_feature_size
 
@@ -42,7 +42,7 @@ class IUModel(nn.Module):
         :param leng: (b,) Type -- int numpy array
         :return: (b, num_answer) The logit of each answers.
         """
-        x = self.lxrt_encoder(sent, (feat, pos))
+        x = self.lxrt_encoder(sent, feat)
         lang_feat = x[0] #new 
         return self.logit_fc(lang_feat) #new 
         # logit = self.logit_fc(x)

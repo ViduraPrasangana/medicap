@@ -118,6 +118,10 @@ class LXRTEncoder(nn.Module):
         input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long).to(device)
         segment_ids = torch.tensor([f.segment_ids for f in train_features], dtype=torch.long).to(device)
 
+        # feats = feats.repeat()
+        feats = feats.unsqueeze(1)
+        feats = feats.repeat(1,50,1)
+        # print(feats.size(),feats)
         output = self.model(input_ids, segment_ids, input_mask,
                             visual_feats=feats,
                             visual_attention_mask=visual_attention_mask)
