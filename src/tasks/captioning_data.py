@@ -174,7 +174,7 @@ class IUEvaluator:
         image_score = 0
         word_count = 0
         for i_id, pred in predictions.items():
-            original_cap_ids = self.dataset.id2datum[i_id]["findings_tokens_ids"]
+            original_cap_ids = self.dataset.id2datum[i_id.split(".")[0]]["findings_tokens_ids"]
             pred_as_list = pred.tolist()
             # print(original_cap_ids,pred)
             word_count += len(original_cap_ids)
