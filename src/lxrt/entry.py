@@ -120,7 +120,7 @@ class LXRTEncoder(nn.Module):
 
         # feats = feats.repeat()
         feats = feats.unsqueeze(1)
-        pad = torch.zeros(1,49,1).to(device)
+        pad = torch.zeros(feats.size()[0],49,feats.size()[2]).to(device)
         feats = torch.cat((feats,pad),dim=1)
         # feats = feats.repeat(1,50,1)
         # print(feats.size(),feats)
