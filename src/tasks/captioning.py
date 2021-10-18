@@ -216,7 +216,7 @@ class IU:
         predictions = {}
         dump_out ={}
         for i, datum_tuple in iter_wrapper(enumerate(loader)):
-            img_id, feats, sent = datum_tuple[:4]
+            img_id, feats, sent = datum_tuple[:3]
             caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length)))]*len(img_id)
             with torch.no_grad():
                 feats = feats.to(device)
