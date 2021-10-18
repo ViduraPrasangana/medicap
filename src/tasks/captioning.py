@@ -216,11 +216,11 @@ class IU:
         predictions = {}
         dump_out ={}
         for i, datum_tuple in iter_wrapper(enumerate(loader)):
-            img_id, feats, boxes, sent = datum_tuple[:4]
+            img_id, feats, sent = datum_tuple[:4]
             caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length)))]*len(img_id)
             with torch.no_grad():
-                feats, boxes = feats.to(device), boxes.to(device)
-                logit = self.model(feats, boxes, caption)
+                feats = feats.to(device)
+                logit = self.model(feats,  caption)
                 score, word_id = logit.max(2)
                 for i_id, w_id in zip(img_id, word_id.cpu().numpy()):
                     predictions[i_id] = w_id
