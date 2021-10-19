@@ -186,7 +186,7 @@ class IUEvaluator:
                     image_score +=1
         
         return 0 if(word_count == 0) else image_score / word_count
-        
+
     def bleu(self, predictions):
         bleu_1 = 0
         bleu_2 = 0
@@ -199,7 +199,7 @@ class IUEvaluator:
             bleu_2 += sentence_bleu([original_cap,], pred,smoothing_function=smoothie,weights=(0,1,0,0))
             bleu_3 += sentence_bleu([original_cap,], pred,smoothing_function=smoothie,weights=(0,0,1,0))
             bleu_4 += sentence_bleu([original_cap,], pred,smoothing_function=smoothie,weights=(0,0,0,1))
-        return (bleu_1/len(predictions), bleu_2/len(predictions), bleu_3/len(predictions), bleu_4/len(predictions))
+        return (round(bleu_1/len(predictions),3), round(bleu_2/len(predictions),3), round(bleu_3/len(predictions),3), round(bleu_4/len(predictions),3))
             
 
     def dump_result(self, predictions: dict, path):
