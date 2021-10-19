@@ -174,7 +174,7 @@ class IU:
             if dump is not None:
                 dump = dump=os.path.join(args.output, 'train_predict_epo_'+str(epoch)+'.json')
                 evaluator.dump_result(dump_out, dump)
-            log_str = "\nEpoch %d: Train accuracy %0.2f: Train Loss %0.2f: Validation Loss %0.2f: BLEU Score %0.2f\n" % (epoch, evaluator.evaluate(predictions) * 100.,total_train_loss,total_valid_loss,evaluator.evaluate(word_tokens))
+            log_str = "\nEpoch %d: Train accuracy %0.2f: Train Loss %0.2f: Validation Loss %0.2f: BLEU Score %0.2f\n" % (epoch, evaluator.evaluate(predictions) * 100.,total_train_loss,total_valid_loss,evaluator.bleu(word_tokens))
             
             # if self.valid_tuple is not None:  # Do Validation
             #     valid_score = self.evaluate(eval_tuple)
@@ -234,7 +234,7 @@ class IU:
         if dump is not None:
             evaluator.dump_result(dump_out, dump)
         
-        log_str = "\nTesting common words %0.2f% : BLEU Score %0.2f\n" % (evaluator.evaluate(predictions) * 100., evaluator.evaluate(word_tokens))
+        log_str = "\nTesting common words %0.2f% : BLEU Score %0.2f\n" % (evaluator.evaluate(predictions) * 100., evaluator.bleu(word_tokens))
         print(log_str, end='')
         with open(self.output + "/log.log", 'a') as f:
             f.write(log_str)
