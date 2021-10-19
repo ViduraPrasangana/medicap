@@ -14,7 +14,7 @@ from utils import load_feat_csv, load_obj_tsv
 from lxrt.tokenization import BertTokenizer
 
 # longer candidate
-from nltk.translate.bleu_score import sentence_bleu
+from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 
 #from tasks.vocabulary import Vocabulary
 
@@ -186,12 +186,20 @@ class IUEvaluator:
                     image_score +=1
         
         return 0 if(word_count == 0) else image_score / word_count
+        
     def bleu(self, predictions):
-        total_score = 0
+        bleu_1 = 0
+        bleu_2 = 0
+        bleu_3 = 0
+        bleu_4 = 0
+        smoothie = SmoothingFunction().method4
         for i_id, pred in predictions.items():
             original_cap = self.dataset.id2datum[i_id.split(".")[0]]["findings_tokens"]
-            total_score += sentence_bleu(original_cap, pred)
-        return total_score/len(predictions)
+            bleu_1 += sentence_bleu([original_cap,], pred,smoothing_function=smoothie,weights=(1,0,0,0))
+            bleu_2 += sentence_bleu([original_cap,], pred,smoothing_function=smoothie,weights=(0,1,0,0))
+            bleu_3 += sentence_bleu([original_cap,], pred,smoothing_function=smoothie,weights=(0,0,1,0))
+            bleu_4 += sentence_bleu([original_cap,], pred,smoothing_function=smoothie,weights=(0,0,0,1))
+        return (bleu_1/len(predictions), bleu_2/len(predictions), bleu_3/len(predictions), bleu_4/len(predictions))
             
 
     def dump_result(self, predictions: dict, path):
