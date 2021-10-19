@@ -13,6 +13,9 @@ from param import args
 from utils import load_feat_csv, load_obj_tsv
 from lxrt.tokenization import BertTokenizer
 
+# longer candidate
+from nltk.translate.bleu_score import sentence_bleu
+
 #from tasks.vocabulary import Vocabulary
 
 
@@ -183,6 +186,13 @@ class IUEvaluator:
                     image_score +=1
         
         return 0 if(word_count == 0) else image_score / word_count
+    def bleu(self, predictions):
+        total_score = 0
+        for i_id, pred in predictions.items():
+            original_cap = self.dataset.id2datum[i_id.split(".")[0]]["findings_tokens"]
+            total_score += sentence_bleu(original_cap, pred)
+        return total_score/len(predictions)
+            
 
     def dump_result(self, predictions: dict, path):
         """
