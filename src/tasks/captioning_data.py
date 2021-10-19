@@ -220,7 +220,8 @@ class IUEvaluator:
             for image_id, prediction in predictions.items():
                 result.append({
                     'image_id': image_id,
-                    'prediction': prediction
+                    'prediction': prediction,
+                    "ground_truth": self.dataset.id2datum[image_id.split(".")[0]]["findings"]
                 })
             json.dump(result, f, indent=4, sort_keys=True)
 
