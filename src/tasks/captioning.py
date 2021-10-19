@@ -233,7 +233,7 @@ class IU:
 
         if dump is not None:
             evaluator.dump_result(dump_out, dump)
-        
+        print(word_tokens)
         log_str = "\nTesting common words %0.2f% : BLEU Score %s\n" % (evaluator.evaluate(predictions) * 100., str(evaluator.bleu(word_tokens)))
         print(log_str, end='')
         with open(self.output + "/log.log", 'a') as f:
