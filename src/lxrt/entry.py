@@ -19,6 +19,7 @@ import os
 
 import torch
 import torch.nn as nn
+import numpy as np
 
 from lxrt.tokenization import BertTokenizer
 from lxrt.modeling import LXRTFeatureExtraction as VisualBertForLXRFeature, VISUAL_CONFIG
@@ -36,7 +37,7 @@ class InputFeatures(object):
         self.segment_ids = segment_ids
 
 
-def convert_sents_to_features(sents, max_seq_length, tokenizer):
+def convert_sents_to_features(sents, max_seq_length, tokenizer,args):
     """Loads a data file into a list of `InputBatch`s."""
 
     features = []
@@ -47,7 +48,10 @@ def convert_sents_to_features(sents, max_seq_length, tokenizer):
         # Account for [CLS] and [SEP] with "- 2"
         if len(tokens_a) > max_seq_length - 2:
             tokens_a = tokens_a[:(max_seq_length - 2)]
-        
+        random_ints = np.random.choice(range(len(tokens_a)), round(args.mask_ratio*len(tokens_a)), replace=False)
+        tokens_a = np.array(tokens_a)
+        tokens_a[random_ints] = '[MASK]'
+        tokens_a = tokens_a.tolist()
         # Keep segment id which allows loading BERT-weights.
         tokens = ["[CLS]"] + tokens_a + ["[SEP]"]
         segment_ids = [0] * len(tokens)
@@ -98,7 +102,7 @@ class LXRTEncoder(nn.Module):
             "bert-base-uncased",
             mode=mode
         )
-
+        self.args = args
         if args.from_scratch:
             print("initializing all the weights")
             self.model.apply(self.model.init_bert_weights)
@@ -112,7 +116,7 @@ class LXRTEncoder(nn.Module):
 
     def forward(self, sents, feats, visual_attention_mask=None):
         train_features = convert_sents_to_features(
-            sents, self.max_seq_length, self.tokenizer)
+            sents, self.max_seq_length, self.tokenizer,self.args.mask_ratio)
 
         input_ids = torch.tensor([f.input_ids for f in train_features], dtype=torch.long).to(device)
         input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long).to(device)
