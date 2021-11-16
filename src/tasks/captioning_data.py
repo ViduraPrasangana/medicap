@@ -226,7 +226,7 @@ class IUEvaluator:
                 result.append({
                     'image_id': image_id,
                     'prediction': prediction,
-                    "ground_truth": self.dataset.id2datum[image_id.split(".")[0]]["findings"]
+                    "ground_truth": self.dataset.id2datum[image_id]["findings"]
 
                 })
             json.dump(result, f, indent=4, sort_keys=True)

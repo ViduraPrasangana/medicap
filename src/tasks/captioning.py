@@ -136,14 +136,14 @@ class IU:
                     dump_out[i_id] = " ".join(self.model.lxrt_encoder.tokenizer.convert_ids_to_tokens(w_id))
                     word_tokens[i_id] = self.model.lxrt_encoder.tokenizer.convert_ids_to_tokens(w_id)
             if self.valid_tuple is not None:
-                for i, (img_id, feats,  sent, target) in eval_iter_wrapper(enumerate(eval_loader)):
+                for i, (img_id, feats,boxes,  sent, target) in eval_iter_wrapper(enumerate(eval_loader)):
                     with torch.no_grad():
                         self.model.eval()
                         caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length)))]*len(img_id)
 
-                        feats = feats.to(device)
+                        feats, boxes  = feats.to(device), boxes.to(device)
 
-                        prediction = self.model(feats, caption)
+                        prediction = self.model(feats, boxes, caption)
                         # assert prediction.dim() == target.dim() == 2
                         targets = []
                         for (i, tar) in enumerate(target):
@@ -220,12 +220,13 @@ class IU:
 
         for i, datum_tuple in iter_wrapper(enumerate(loader)):
             img_id, feats, boxes, sent = datum_tuple[:4]
-            caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length-20)))]*len(img_id)
+            caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length)))]*len(img_id)
             with torch.no_grad():
                 feats, boxes = feats.to(device), boxes.to(device)
                 logit = self.model(feats, boxes, caption)
                 score, word_id = logit.max(2)
                 for i_id, w_id in zip(img_id, word_id.cpu().numpy()):
+                    predictions[i_id] = w_id
                     word_tokens[i_id] = self.model.lxrt_encoder.tokenizer.convert_ids_to_tokens(w_id)
                     dump_out[i_id] = " ".join(word_tokens[i_id])
 
