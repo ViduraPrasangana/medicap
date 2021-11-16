@@ -116,7 +116,7 @@ class LXRTEncoder(nn.Module):
 
     def forward(self, sents, feats, visual_attention_mask=None):
         train_features = convert_sents_to_features(
-            sents, self.max_seq_length, self.tokenizer,self.args.mask_ratio)
+            sents, self.max_seq_length, self.tokenizer,self.args)
 
         input_ids = torch.tensor([f.input_ids for f in train_features], dtype=torch.long).to(device)
         input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long).to(device)
