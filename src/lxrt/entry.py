@@ -48,10 +48,14 @@ def convert_sents_to_features(sents, max_seq_length, tokenizer,args):
         # Account for [CLS] and [SEP] with "- 2"
         if len(tokens_a) > max_seq_length - 2:
             tokens_a = tokens_a[:(max_seq_length - 2)]
+        print(tokens_a)
+        print('\n')
         random_ints = np.random.choice(range(len(tokens_a)), round(args.mask_ratio*len(tokens_a)), replace=False)
         tokens_a = np.array(tokens_a)
         tokens_a[random_ints] = '[MASK]'
         tokens_a = tokens_a.tolist()
+        print(tokens_a)
+        print('\n----------------\n')
         # Keep segment id which allows loading BERT-weights.
         tokens = ["[CLS]"] + tokens_a + ["[SEP]"]
         segment_ids = [0] * len(tokens)
