@@ -98,8 +98,10 @@ class IU:
         for epoch in range(args.epochs):
             predictions = {}
             dump_out = {}
+            word_tokens = {}
             train_loss=0
             valid_loss=0
+            
             for i, (img_id, feats, boxes, sent, target) in iter_wrapper(enumerate(loader)):
                 # torch.cuda.set_per_process_memory_fraction(0.7)
                 self.model.train()
@@ -133,6 +135,7 @@ class IU:
                 for i_id, w_id in zip(img_id, word_id.cpu().numpy()):
                     predictions[i_id] = w_id
                     dump_out[i_id] = " ".join(self.model.lxrt_encoder.tokenizer.convert_ids_to_tokens(w_id))
+                    word_tokens[i_id] = self.model.lxrt_encoder.tokenizer.convert_ids_to_tokens(w_id)
 
             if self.valid_tuple is not None:
                 for i, (img_id, feats, boxes, sent, target) in eval_iter_wrapper(enumerate(eval_loader)):
@@ -171,7 +174,7 @@ class IU:
             if dump is not None:
                 dump = dump=os.path.join(args.output, 'train_predict_epo_'+str(epoch)+'.json')
                 evaluator.dump_result(dump_out, dump)
-            log_str = "\nEpoch %d: Train accuracy %0.2f: Train Loss %0.2f: Validation Loss %0.2f\n" % (epoch, evaluator.evaluate(predictions) * 100.,total_train_loss,total_valid_loss)
+            log_str = "\nEpoch %d: Train accuracy %0.2f: Train Loss %0.2f: Validation Loss %0.2f: BLEU Score %s\n" % (epoch, evaluator.evaluate(predictions) * 100.,total_train_loss,total_valid_loss, str(evaluator.bleu(word_tokens)))
             
             # if self.valid_tuple is not None:  # Do Validation
             #     valid_score = self.evaluate(eval_tuple)
@@ -214,6 +217,7 @@ class IU:
         iter_wrapper = (lambda x: tqdm(x, total=len(loader))) if args.tqdm else (lambda x: x)
         predictions = {}
         dump_out ={}
+        word_tokens = {}
         for i, datum_tuple in iter_wrapper(enumerate(loader)):
             img_id, feats, boxes, sent = datum_tuple[:4]
             caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length)))]*len(img_id)
@@ -223,12 +227,13 @@ class IU:
                 score, word_id = logit.max(2)
                 for i_id, w_id in zip(img_id, word_id.cpu().numpy()):
                     predictions[i_id] = w_id
-                    dump_out[i_id] = " ".join(self.model.lxrt_encoder.tokenizer.convert_ids_to_tokens(w_id))
+                    word_tokens[i_id] = self.model.lxrt_encoder.tokenizer.convert_ids_to_tokens(w_id)
+                    dump_out[i_id] = " ".join(word_tokens[i_id])
 
         if dump is not None:
             evaluator.dump_result(dump_out, dump)
         
-        log_str = "\nTesting %0.2f\n" % (evaluator.evaluate(predictions) * 100.)
+        log_str = "\nTesting common words %0.2f: BLEU Score %s\n" % (evaluator.evaluate(predictions) * 100., str(evaluator.bleu(word_tokens)))
         print(log_str, end='')
         with open(self.output + "/log.log", 'a') as f:
             f.write(log_str)
