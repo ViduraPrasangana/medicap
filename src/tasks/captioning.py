@@ -106,11 +106,10 @@ class IU:
                 # torch.cuda.set_per_process_memory_fraction(0.7)
                 self.model.train()
                 self.optim.zero_grad()
-                caption = [" ".join((["[MASK]"]*(self.model.lxrt_encoder.max_seq_length)))]*len(img_id)
 
                 feats  = feats.to(device)
 
-                prediction = self.model(feats, caption)
+                prediction = self.model(feats, sent)
 
                 # assert prediction.dim() == target.dim() == 2
                 targets = []
