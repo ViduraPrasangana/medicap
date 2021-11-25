@@ -121,10 +121,8 @@ class IUTorchDataset(Dataset):
             load_topk = 5000 if (split == 'minival' and topk is None) else topk
             data = pd.read_pickle(os.path.join(IU_IMGFEAT_ROOT, '%s_chexnet_iu_1024.pkl' % (SPLIT2NAME[split])))
             data["image"] = data["image"].apply(lambda x: x[16:-3]+"dcm.png")
-            data["image_features"] = data["image_features"].apply(lambda x: x[0].astype("double"))
+            data["image_features"] = data["image_features"].apply(lambda x: x[0].astype("float32"))
             data.rename(columns={'image': 'img_id', 'image_features': 'features'}, inplace=True)
-            print(data.head())
-            print(data["features"][0][0],np.double(data["features"][0][0]),type(data["features"][0][0]))
             img_data.extend(data.to_dict('records'))
 
         # Convert img list to dict
