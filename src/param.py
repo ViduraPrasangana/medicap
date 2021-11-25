@@ -88,6 +88,8 @@ def parse_args():
     parser.add_argument("--multiGPU", action='store_const', default=False, const=True)
     parser.add_argument("--numWorkers", dest='num_workers', default=0)
     parser.add_argument("--iuImgfeatRoot", dest='iu_imgfeat_root', default='data/iu/')
+    parser.add_argument("--capMaskRate", dest='mask_ratio', default=0.15, type=float)
+
 
     # Parse the arguments.
     args = parser.parse_args()
