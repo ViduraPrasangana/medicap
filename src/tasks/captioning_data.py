@@ -8,6 +8,7 @@ import pickle
 import numpy as np
 import torch
 from torch.utils.data import Dataset
+import pandas as pd
 
 from param import args
 from utils import load_feat_csv, load_obj_tsv
@@ -118,9 +119,13 @@ class IUTorchDataset(Dataset):
             # Minival is 5K images in MS COCO, which is used in evaluating VQA/LXMERT-pre-training.
             # It is saved as the top 5K features in val2014_***.tsv
             load_topk = 5000 if (split == 'minival' and topk is None) else topk
-            img_data.extend(load_feat_csv(
-                os.path.join(IU_IMGFEAT_ROOT, '%s_feat.csv' % (SPLIT2NAME[split])),
-                topk=load_topk))
+            data = pd.read_pickle(os.path.join(IU_IMGFEAT_ROOT, '%s_chexnet_iu_1024.pkl' % (SPLIT2NAME[split])))
+            data["image"] = data["image"].apply(lambda x: x[16:-3]+"dcm.png")
+            data["image_features"] = data["image_features"].apply(lambda x: x[0].astype("double"))
+            data.rename(columns={'image': 'img_id', 'image_features': 'features'}, inplace=True)
+            print(data.head())
+            print(data["features"][0][0],np.double(data["features"][0][0]),type(data["features"][0][0]))
+            img_data.extend(data.to_dict('records'))
 
         # Convert img list to dict
         self.imgid2img = {}
