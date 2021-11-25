@@ -146,14 +146,20 @@ def load_lxmert_qa(path, model):
     bert_model_keys = set(model.lxrt_encoder.model.state_dict().keys())
     bert_loaded_keys = set(bert_state_dict.keys())
     assert len(bert_model_keys - bert_loaded_keys) == 0
-    model.lxrt_encoder.model.load_state_dict(bert_state_dict, strict=False)
+    try:
+        model.lxrt_encoder.model.load_state_dict(bert_state_dict, strict=False)
+    except RuntimeError:
+        print("Bert state error")
 
     # Load Answer Logic FC Weights
     model_keys = set(model.state_dict().keys())
     ans_loaded_keys = set(answer_state_dict.keys())
     assert len(ans_loaded_keys - model_keys) == 0
 
-    model.load_state_dict(answer_state_dict, strict=False)
+    try:
+        model.load_state_dict(answer_state_dict, strict=False)
+    except RuntimeError:
+        print("Model state error")
 
 
 
