@@ -148,7 +148,7 @@ class VisualConfig(object):
         self.x_layers = x_layers
         self.r_layers = r_layers
 
-        self.visual_feat_dim = 1024
+        self.visual_feat_dim = 50
         self.visual_pos_dim = 4
 
         self.obj_id_num = 1600
