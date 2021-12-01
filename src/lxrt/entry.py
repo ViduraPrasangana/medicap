@@ -112,7 +112,7 @@ class LXRTEncoder(nn.Module):
 
     @property
     def dim(self):
-        return 2000
+        return 768
 
     def forward(self, sents, feats, visual_attention_mask=None):
         train_features = convert_sents_to_features(
@@ -124,7 +124,7 @@ class LXRTEncoder(nn.Module):
 
         # feats = feats.repeat()
         feats = feats.unsqueeze(1)
-        pad = torch.zeros(feats.size()[0],49,feats.size()[2]).to(device)
+        pad = torch.zeros(feats.size()[0],1023,feats.size()[2]).to(device)
         feats = torch.cat((feats,pad),dim=1)
         # feats = feats.repeat(1,50,1)
         # print(feats.size(),feats)
