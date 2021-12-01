@@ -128,7 +128,7 @@ class LXRTEncoder(nn.Module):
 
 
         feats = feats[:,:,np.newaxis]
-        feats = feats.repeat(50,2)
+        feats = feats.repeat(1,1,50)
 
         output = self.model(input_ids, segment_ids, input_mask,
                             visual_feats=feats,
