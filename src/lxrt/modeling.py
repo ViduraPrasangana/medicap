@@ -148,7 +148,7 @@ class VisualConfig(object):
         self.x_layers = x_layers
         self.r_layers = r_layers
 
-        self.visual_feat_dim = 64
+        self.visual_feat_dim = 1024
         self.visual_pos_dim = 4
 
         self.obj_id_num = 1600
@@ -512,7 +512,6 @@ class VisualFeatEncoder(nn.Module):
         # y = self.box_fc(boxes)
         # y = self.box_layer_norm(y)
         # output = (x + y) / 2
-        
 
         output = self.dropout(x)
         return output
