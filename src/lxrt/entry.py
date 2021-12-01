@@ -112,7 +112,7 @@ class LXRTEncoder(nn.Module):
 
     @property
     def dim(self):
-        return 768
+        return 2000
 
     def forward(self, sents, feats, visual_attention_mask=None):
         train_features = convert_sents_to_features(
