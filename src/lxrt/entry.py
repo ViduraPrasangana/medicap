@@ -123,9 +123,13 @@ class LXRTEncoder(nn.Module):
         segment_ids = torch.tensor([f.segment_ids for f in train_features], dtype=torch.long).to(device)
 
         # feats = feats.repeat()
+        print(feats.size)
+        print(feats)
         feats = feats.unsqueeze(1)
+        print(feats.size)
         pad = torch.zeros(feats.size()[0],1023,feats.size()[2]).to(device)
         feats = torch.cat((feats,pad),dim=1)
+        print(feats.size)
         # feats = feats.repeat(1,50,1)
         # print(feats.size(),feats)
         output = self.model(input_ids, segment_ids, input_mask,
