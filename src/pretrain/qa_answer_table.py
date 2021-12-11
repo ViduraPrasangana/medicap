@@ -82,7 +82,7 @@ class AnswerTable:
         return len(self.anss)
 
 
-def load_lxmert_qa(path, model, label2ans):
+def load_lxmert_qa(path, model):
     """
     Load model weights from LXMERT pre-training.
     The answers in the fine-tuned QA task (indicated by label2ans)
@@ -124,36 +124,42 @@ def load_lxmert_qa(path, model, label2ans):
     answer_table = AnswerTable()
     loaded = 0
     unload = 0
-    if type(label2ans) is list:
-        label2ans = {label: ans for label, ans in enumerate(label2ans)}
-    for label, ans in label2ans.items():
-        new_ans = answer_table.convert_ans(ans)
-        if answer_table.used(new_ans):
-            ans_id_9500 = answer_table.ans2id(new_ans)
-            new_answer_weight[label] = ans_weight[ans_id_9500]
-            new_answer_bias[label] = ans_bias[ans_id_9500]
-            loaded += 1
-        else:
-            new_answer_weight[label] = 0.
-            new_answer_bias[label] = 0.
-            unload += 1
-    print("Loaded %d answers from LXRTQA pre-training and %d not" % (loaded, unload))
+    # if type(label2ans) is list:
+    #     label2ans = {label: ans for label, ans in enumerate(label2ans)}
+    # for label, ans in label2ans.items():
+    #     new_ans = answer_table.convert_ans(ans)
+    #     if answer_table.used(new_ans):
+    #         ans_id_9500 = answer_table.ans2id(new_ans)
+    #         new_answer_weight[label] = ans_weight[ans_id_9500]
+    #         new_answer_bias[label] = ans_bias[ans_id_9500]
+    #         loaded += 1
+    #     else:
+    #         new_answer_weight[label] = 0.
+    #         new_answer_bias[label] = 0.
+    #         unload += 1
+    # print("Loaded %d answers from LXRTQA pre-training and %d not" % (loaded, unload))
     print()
-    answer_state_dict['logit_fc.3.weight'] = new_answer_weight
-    answer_state_dict['logit_fc.3.bias'] = new_answer_bias
+    #answer_state_dict['logit_fc.3.weight'] = new_answer_weight
+    #answer_state_dict['logit_fc.3.bias'] = new_answer_bias
 
     # Load Bert Weights
     bert_model_keys = set(model.lxrt_encoder.model.state_dict().keys())
     bert_loaded_keys = set(bert_state_dict.keys())
     assert len(bert_model_keys - bert_loaded_keys) == 0
-    model.lxrt_encoder.model.load_state_dict(bert_state_dict, strict=False)
+    try:
+        model.lxrt_encoder.model.load_state_dict(bert_state_dict, strict=False)
+    except RuntimeError:
+        print("Bert state error")
 
     # Load Answer Logic FC Weights
     model_keys = set(model.state_dict().keys())
     ans_loaded_keys = set(answer_state_dict.keys())
     assert len(ans_loaded_keys - model_keys) == 0
 
-    model.load_state_dict(answer_state_dict, strict=False)
+    try:
+        model.load_state_dict(answer_state_dict, strict=False)
+    except RuntimeError:
+        print("Model state error")
 
 
 

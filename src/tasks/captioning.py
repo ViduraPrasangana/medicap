@@ -55,8 +55,7 @@ class IU:
         if args.load_lxmert is not None:
             self.model.lxrt_encoder.load(args.load_lxmert)
         if args.load_lxmert_qa is not None:
-            load_lxmert_qa(args.load_lxmert_qa, self.model,
-                           label2ans=self.train_tuple.dataset.label2ans)
+            load_lxmert_qa(args.load_lxmert_qa, self.model)
         
         # GPU options
         print("tring to use %s" % device)
