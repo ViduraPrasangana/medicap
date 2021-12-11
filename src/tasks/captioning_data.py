@@ -13,6 +13,9 @@ from param import args
 from utils import load_obj_tsv
 from lxrt.tokenization import BertTokenizer
 
+# longer candidate
+from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
+
 #from tasks.vocabulary import Vocabulary
 
 
@@ -190,6 +193,21 @@ class IUEvaluator:
         
         return 0 if(word_count == 0) else image_score / word_count
 
+    def bleu(self, predictions):
+        bleu_1 = 0
+        bleu_2 = 0
+        bleu_3 = 0
+        bleu_4 = 0
+        smoothie = SmoothingFunction().method4
+        for i_id, pred in predictions.items():
+            original_cap = self.dataset.id2datum[i_id.split(".")[0]]["findings_tokens"]
+            bleu_1 += sentence_bleu([original_cap,], pred,smoothing_function=smoothie,weights=(1,0,0,0))
+            bleu_2 += sentence_bleu([original_cap,], pred,smoothing_function=smoothie,weights=(0.5,0.5,0,0))
+            bleu_3 += sentence_bleu([original_cap,], pred,smoothing_function=smoothie,weights=(0.34,0.33,0.33,0))
+            bleu_4 += sentence_bleu([original_cap,], pred,smoothing_function=smoothie,weights=(0.25,0.25,0.25,0.25))
+        return (round(bleu_1/len(predictions),3), round(bleu_2/len(predictions),3), round(bleu_3/len(predictions),3), round(bleu_4/len(predictions),3))
+            
+
     def dump_result(self, predictions: dict, path):
         """
         Dump results to a json file, which could be submitted to the VQA online evaluation.
@@ -208,7 +226,8 @@ class IUEvaluator:
             for image_id, prediction in predictions.items():
                 result.append({
                     'image_id': image_id,
-                    'prediction': prediction
+                    'prediction': prediction,
+                    "ground_truth": self.dataset.id2datum[image_id]["findings"]
                 })
             json.dump(result, f, indent=4, sort_keys=True)
 
